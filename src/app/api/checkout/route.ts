@@ -10,19 +10,24 @@ export async function POST(req: Request) {
     const { cartItems, metadata } = await req.json();
     const origin = req.headers.get('origin') || 'http://localhost:3000'; 
 
-    // Build the line items safely
+    // Build the line items
     const line_items = cartItems.map((item: any) => {
-      // STRIPE RULE: Images must be publicly accessible (HTTPS).
-      // We only pass the image if it starts with 'http' (Cloudinary/S3).
-      // If it's a local path (/menu/suya.jpg), we skip it to prevent the "Not a valid URL" error.
-      const hasValidImage = item.image && item.image.startsWith('http');
-
       const productData: any = {
         name: item.name,
       };
 
-      if (hasValidImage) {
-        productData.images = [item.image];
+      if (item.image) {
+        /**
+         * IMAGE LOGIC:
+         * 1. If the image is an external link (starts with 'http'), use it directly.
+         * 2. If it's a local path (starts with '/'), prepend the Vercel Base URL.
+         * 3. This ensures Stripe always receives a valid public HTTPS URL.
+         */
+        const imageUrl = item.image.startsWith('http')
+          ? item.image
+          : `${process.env.NEXT_PUBLIC_BASE_URL}${item.image}`;
+        
+        productData.images = [imageUrl];
       }
 
       return {
@@ -43,12 +48,11 @@ export async function POST(req: Request) {
         eventDate: metadata?.eventDate || 'Not specified',
       },
       success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/`,
+      cancel_url: `${origin}/shop`, // Returning to shop makes for a better user experience
     });
 
     return NextResponse.json({ url: session.url });
   } catch (err: any) {
-    // Log the full error to your terminal so you can see exactly what Stripe is complaining about
     console.error('❌ Stripe Checkout Error:', err.message);
     return NextResponse.json(
       { error: err.message || 'Internal Server Error' }, 

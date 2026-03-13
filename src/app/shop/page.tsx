@@ -9,7 +9,7 @@ const products = [
     id: 1,
     name: "Heritage Jollof Rice",
     price: 12.50,
-    image: "/heritage_jollof_rice.jpg",
+    image: "https://i.ibb.co/4g9yVJys/heritage-jollof-rice.png",
     description: "Our signature long-grain rice infused with scotch bonnet, plum tomatoes, and hardwood smoke."
   },
   {
@@ -37,7 +37,7 @@ const products = [
     id: 5,
     name: "Plantain Tostones",
     price: 6.00,
-    image: "/plantain_tostones.jpg",
+    image: "https://i.ibb.co/QFpkFR6C/plantain-tostones.png",
     description: "Twice-fried green plantains served with a side of zesty avocado crema and sea salt."
   },
   {
