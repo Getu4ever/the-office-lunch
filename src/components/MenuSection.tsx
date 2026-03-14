@@ -5,18 +5,19 @@ import { useCart } from '@/context/CartContext';
 import { useState } from 'react';
 
 const DISHES = [
-
   {
     id: 1,
     name: 'Smoked Jollof Box',
+    description: 'Long-grain rice infused with scotch bonnet, wood-smoke aroma, and signature spices.',
     price: 18.50,
-    image: '/smoked_jollof_box.png', // Keeping your custom branding
+    image: '/smoked_jollof_box.png',
     tag: 'Bestseller',
     category: 'Mains'
   },
   {
     id: 2,
     name: 'Honey Glazed Plantain',
+    description: 'Sweet, ripened plantain rounds caramelized with organic honey and a hint of sea salt.',
     price: 8.00,
     image: 'https://images.unsplash.com/photo-1628294895950-9805252327bc?q=80&w=800', 
     tag: 'Vegan',
@@ -25,6 +26,7 @@ const DISHES = [
   {
     id: 3,
     name: 'Suya Spiced Wagyu',
+    description: 'Premium Wagyu beef strips crusted in nutty kulikuli spice and flame-grilled to perfection.',
     price: 32.00,
     image: 'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=800',
     tag: 'Premium',
@@ -33,6 +35,7 @@ const DISHES = [
   {
     id: 4,
     name: 'Hibiscus Zobo Spritz',
+    description: 'Traditional dried hibiscus flowers brewed with ginger, clove, and sparkling botanicals.',
     price: 6.50,
     image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?q=80&w=800',
     tag: 'New',
@@ -41,6 +44,7 @@ const DISHES = [
   {
     id: 5,
     name: 'Sticky Toffee Pudding',
+    description: 'Rich date sponge soaked in a warm salted caramel sauce, served with velvet cream.',
     price: 9.50,
     image: 'https://images.unsplash.com/photo-1587314168485-3236d6710814?q=80&w=800',
     tag: 'Warm',
@@ -49,6 +53,7 @@ const DISHES = [
   {
     id: 6,
     name: 'Kachumbari Salad',
+    description: 'A refreshing medley of diced tomatoes, onions, cilantro, and lemon-chili dressing.',
     price: 7.00,
     image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=800',
     tag: 'Fresh',
@@ -57,6 +62,7 @@ const DISHES = [
   {
     id: 7,
     name: 'Passionfruit Mojito',
+    description: 'Fresh passionfruit pulp muddled with mint, lime, and a splash of cane sugar soda.',
     price: 7.50,
     image: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=800',
     tag: 'Cooler',
@@ -65,6 +71,7 @@ const DISHES = [
   {
     id: 8,
     name: 'Dark Chocolate Fondant',
+    description: 'Valrhona chocolate cake with a molten center, paired with seasonal berry compote.',
     price: 11.00,
     image: 'https://images.unsplash.com/photo-1624353365286-3f8d62daad51?q=80&w=800',
     tag: 'Luxury',
@@ -79,7 +86,6 @@ export default function MenuSection() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [flyingItem, setFlyingItem] = useState<{ x: number; y: number; img: string } | null>(null);
 
-  // Filter logic
   const filteredDishes = activeCategory === 'All' 
     ? DISHES 
     : DISHES.filter(dish => dish.category === activeCategory);
@@ -122,7 +128,6 @@ export default function MenuSection() {
       )}
 
       <div className="max-w-7xl mx-auto">
-        {/* Header with Integrated Filter Bar */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-8">
           <div>
             <h2 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none">Signature Dishes</h2>
@@ -146,7 +151,6 @@ export default function MenuSection() {
           </div>
         </div>
 
-        {/* Grid renders filtered list */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {filteredDishes.map((dish) => (
             <div key={dish.id} className="group relative animate-in fade-in zoom-in duration-500">
@@ -177,12 +181,16 @@ export default function MenuSection() {
                   <h3 className="font-black text-xl text-slate-900 tracking-tight leading-tight">{dish.name}</h3>
                   <span className="font-black text-orange-600 text-lg">£{dish.price.toFixed(2)}</span>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 mb-2">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} className="w-3 h-3 fill-orange-400 text-orange-400" />
                   ))}
                   <span className="text-[10px] font-bold text-slate-400 ml-2 uppercase tracking-tighter">Verified Order</span>
                 </div>
+                {/* Description added here */}
+                <p className="text-slate-500 text-xs leading-relaxed font-medium line-clamp-2">
+                  {dish.description}
+                </p>
               </div>
             </div>
           ))}

@@ -7,3 +7,12 @@
   --color-orange-600: #ea580c;
   --color-orange-700: #c2410c;
 }
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  /* Prevents horizontal layout shifts during transitions */
+  overflow-x: hidden;
+}
