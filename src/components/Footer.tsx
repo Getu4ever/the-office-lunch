@@ -1,8 +1,36 @@
 'use client';
+import { useState } from 'react'; // Added for logic
 import Link from 'next/link';
-import { Instagram, Twitter, Facebook, Mail, MapPin, Phone, ArrowRight } from 'lucide-react';
+import { Instagram, Twitter, Facebook, Mail, MapPin, Phone, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
 
 export default function Footer() {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setStatus('loading');
+
+    try {
+      const response = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      if (response.ok) {
+        setStatus('success');
+        setEmail('');
+      } else {
+        setStatus('error');
+      }
+    } catch (err) {
+      setStatus('error');
+    }
+  };
+
   return (
     <footer className="bg-black text-white pt-24 pb-12 px-6">
       <div className="max-w-7xl mx-auto">
@@ -53,22 +81,47 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Newsletter */}
+          {/* Newsletter / Guestlist */}
           <div>
             <h4 className="font-black uppercase text-xs tracking-[0.2em] mb-8 text-[#f06428]">Guestlist</h4>
-            <p className="text-xs text-slate-500 mb-6 leading-relaxed">
-              Join our mailing list for seasonal menus and event styling tips.
-            </p>
-            <form className="relative">
-              <input 
-                type="email" 
-                placeholder="Email address"
-                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-sm focus:outline-none focus:ring-2 focus:ring-[#f06428] transition-all"
-              />
-              <button type="submit" className="absolute right-2 top-2 p-2 bg-[#f06428] rounded-xl hover:bg-orange-500 transition-colors">
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </form>
+            
+            {status === 'success' ? (
+              <div className="flex items-center gap-2 text-[#f06428] py-2">
+                <CheckCircle2 className="w-4 h-4" />
+                <p className="text-xs font-bold uppercase tracking-wider">Thank you for subscribing!</p>
+              </div>
+            ) : (
+              <>
+                <p className="text-xs text-slate-500 mb-6 leading-relaxed">
+                  Join our mailing list for seasonal menus and event styling tips.
+                </p>
+                <form onSubmit={handleSubmit} className="relative">
+                  <input 
+                    type="email" 
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Email address"
+                    disabled={status === 'loading'}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-sm focus:outline-none focus:ring-2 focus:ring-[#f06428] transition-all disabled:opacity-50"
+                  />
+                  <button 
+                    type="submit" 
+                    disabled={status === 'loading'}
+                    className="absolute right-2 top-2 p-2 bg-[#f06428] rounded-xl hover:bg-orange-500 transition-colors disabled:bg-slate-700"
+                  >
+                    {status === 'loading' ? (
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    ) : (
+                      <ArrowRight className="w-4 h-4 text-white" />
+                    )}
+                  </button>
+                </form>
+                {status === 'error' && (
+                  <p className="text-[10px] text-red-500 mt-2 font-bold uppercase tracking-tighter">Please try again.</p>
+                )}
+              </>
+            )}
           </div>
 
         </div>
