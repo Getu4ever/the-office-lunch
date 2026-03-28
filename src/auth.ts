@@ -2,18 +2,19 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google"; 
 import dbConnect from "./lib/mongodb";
-import User from "./models/User"; // Changed to named import to match your User.ts
+import User from "./models/User";
 import bcrypt from "bcryptjs";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  // 1. DYNAMIC TRUST: Essential for switching between Local and Vercel
+  trustHost: true,
+  
   providers: [
-    // 1. GOOGLE PROVIDER
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       allowDangerousEmailAccountLinking: true, 
     }),
-    // 2. CREDENTIALS PROVIDER
     Credentials({
       name: "Credentials",
       credentials: {
@@ -22,7 +23,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         await dbConnect();
-        // Use the named User model
         const user = await User.findOne({ email: credentials?.email });
         
         if (!user || !user.password) return null;
@@ -66,17 +66,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async signIn({ user, account }) {
       if (account?.provider === "google") {
-        await dbConnect();
-        const existingUser = await User.findOne({ email: user.email });
-        
-        if (!existingUser) {
-          await User.create({
-            name: user.name,
-            email: user.email,
-            image: user.image,
-            role: "customer",
-            isVerified: true, // Matching your schema's field
-          });
+        try {
+          await dbConnect();
+          const existingUser = await User.findOne({ email: user.email });
+          
+          if (!existingUser) {
+            await User.create({
+              name: user.name,
+              email: user.email,
+              image: user.image,
+              role: "customer",
+              isVerified: true,
+            });
+          }
+        } catch (error) {
+          console.error("GOOGLE_SIGNIN_DB_ERROR:", error);
+          return false;
         }
       }
       return true;
@@ -88,5 +93,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: {
     strategy: "jwt",
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  // Ensure this is set in both .env.local and Vercel
+  secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
 });
