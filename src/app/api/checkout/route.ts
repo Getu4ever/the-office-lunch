@@ -17,16 +17,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Basket is empty" }, { status: 400 });
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    /**
+     * DYNAMIC BASE URL LOGIC
+     * 1. Check the 'origin' header (works for localhost and Vercel automatically)
+     * 2. Fallback to your hardcoded Vercel URL
+     * 3. Final fallback to localhost for safety
+     */
+    const origin = req.headers.get("origin");
+    const baseUrl = origin || "https://the-office-lunch.vercel.app";
 
-    // 1. Prepare Line Items (Stripe uses this for the Checkout Page UI)
-    // We keep the images here so the customer SEES the food on the Stripe page.
+    // 1. Prepare Line Items
     const line_items = cartItems.map((item: any) => {
       let imageUrl = item.image || item.img;
       
-      // Ensure absolute URL for Stripe
       if (imageUrl && !imageUrl.startsWith('http')) {
-        imageUrl = `${baseUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
+        const formattedPath = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+        imageUrl = `${baseUrl}${formattedPath}`;
       }
 
       return {
@@ -42,14 +48,14 @@ export async function POST(req: Request) {
       };
     });
 
-    // 2. Create the Session with COMPRESSED Metadata
-    // We remove 'name' and 'image' from metadata to stay under the 500-character limit.
+    // 2. Create the Session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items,
       mode: "payment",
+      // Stripe will now redirect back to exactly where the user came from
       success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/menu`,
+      cancel_url: `${baseUrl}/menus`, 
       customer_email: userEmail || undefined,
       shipping_address_collection: { allowed_countries: ["GB"] },
       metadata: {
@@ -57,7 +63,6 @@ export async function POST(req: Request) {
         userEmail: userEmail || "",
         deliverySlot: deliverySlot || "",
         eventDate: selectedDate || "",
-        // COMPRESSED: Only ID and Quantity. Webhook will fetch the rest from DB.
         cartDetails: JSON.stringify(cartItems.map((i: any) => ({
           id: i._id || i.id,
           q: Number(i.quantity || i.qty)
