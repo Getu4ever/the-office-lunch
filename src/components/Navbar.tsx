@@ -36,7 +36,7 @@ export default function Navbar() {
 
   return (
     <>
-      {/* 1. DYNAMIC HERO SECTION */}
+      {/* 1. DYNAMIC HERO SECTION - (UNTOUCHED) */}
       <section className={`relative w-full overflow-hidden transition-all duration-700 ${
         isHome ? 'h-[90vh] min-h-[700px]' : 'h-[60vh] min-h-[450px]'
       }`}>
@@ -62,18 +62,30 @@ export default function Navbar() {
       </section>
 
       {/* 2. STICKY NAVIGATION */}
-      <nav className={`fixed top-0 w-full z-[100] transition-all duration-300 h-20 md:h-28 flex items-center ${
+      <nav className={`fixed top-0 w-full z-[100] transition-all duration-300 flex items-center ${
           scrolled ? 'bg-[#f5f0e6] shadow-md border-b border-stone-200' : 'bg-transparent border-b border-white/10'
         }`}>
-        <div className="max-w-[1440px] mx-auto px-6 md:px-10 w-full flex items-center justify-between">
+        <div className="max-w-[1440px] mx-auto px-6 md:px-10 w-full flex items-center justify-between py-2 md:py-4">
           
-          <div className="flex items-center">
-            <Link href="/" className="relative w-40 h-10 md:w-64 md:h-20 transition-transform hover:scale-105"> 
+          {/* LOGO & PHONE BLOCK (LEFT SIDE) */}
+          <div className="flex flex-col items-start gap-1">
+            <Link href="/" className="relative w-40 h-10 md:w-64 md:h-16 transition-transform hover:scale-105"> 
               <Image src="/logo.png" alt="Logo" fill className="object-contain" priority />
             </Link>
+            
+            {/* SLEEK SINGLE-LINE PHONE (VISIBLE ON DESKTOP) */}
+            <div className={`hidden lg:flex items-center gap-3 transition-colors ${scrolled ? 'text-slate-900' : 'text-white'}`}>
+              <Phone className="w-3.5 h-3.5 text-[#b32d3a]" />
+              <div className="flex items-center gap-1.5 text-[12px] font-black uppercase tracking-widest leading-none">
+                <span className={scrolled ? 'text-slate-400' : 'text-white/60'}>Call Us:</span>
+                <a href="tel:02082438814" className="text-[12px] font-black tracking-tight leading-none hover:text-[#b32d3a]">
+                  020 8243 8814
+                </a>
+              </div>
+            </div>
           </div>
           
-          {/* DESKTOP NAV - RESTORED ORIGINAL LOGIN/REGISTER POSITION */}
+          {/* DESKTOP NAV LINKS - (UNTOUCHED LOGIC) */}
           <div className={`hidden xl:flex items-center gap-8 text-[12px] font-black uppercase tracking-[0.2em] transition-colors duration-300 ${
             scrolled ? 'text-slate-900' : 'text-white'
           }`}>
@@ -91,7 +103,8 @@ export default function Navbar() {
             )}
           </div>
 
-          <div className="flex items-center gap-3 md:gap-5">
+          {/* RIGHT UTILITIES - (UNTOUCHED LOGIC) */}
+          <div className="flex items-center gap-3 md:gap-5 flex-shrink-0">
             {/* KITCHEN BUTTON */}
             {isStaff && (
               <Link 
@@ -142,7 +155,7 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* 3. MOBILE MENU */}
+      {/* 3. MOBILE MENU - (UNTOUCHED) */}
       <div className={`fixed inset-0 bg-[#0f172a] transition-all duration-500 z-[110] xl:hidden ${isOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
         <div className="relative h-full flex flex-col px-10 pt-32 pb-12">
           <button onClick={() => setIsOpen(false)} className="absolute top-8 right-8 text-white/50 flex items-center gap-2 uppercase text-[10px] font-black tracking-[0.3em]">

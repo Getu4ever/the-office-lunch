@@ -51,7 +51,7 @@ export default function ContactPage() {
             <span className="text-[#b32d3a]">Next Boardroom</span>
           </h1>
           <p className="max-w-2xl text-slate-500 font-medium italic text-lg">
-            From daily office fuel to high-stakes corporate milestones, we handle every culinary detail with Richmond-based precision.
+            From daily office fuel to high-stakes corporate milestones, we handle every culinary detail with London-based precision.
           </p>
         </div>
 
@@ -79,7 +79,7 @@ export default function ContactPage() {
                   <MapPin className="w-4 h-4 text-[#b32d3a]" /> Our Kitchen
                 </div>
                 <p className="text-slate-500 font-bold leading-relaxed">
-                  Richmond Green,<br />London, TW9 1LX
+                  Kew Rd, Richmond,<br />London, TW9 2NA
                 </p>
               </div>
 
@@ -94,7 +94,7 @@ export default function ContactPage() {
             {/* LOCATION MAP */}
             <div className="relative h-96 rounded-[3rem] overflow-hidden shadow-2xl border border-slate-100 group">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d19875.24430489999!2d-0.316885368369524!3d51.460832367803615!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48760c6753086a9d%3A0xc0768c7e96b797e5!2sRichmond!5e0!3m2!1sen!2suk!4v1700000000000!5m2!1sen!2suk"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2485.6723225211833!2d-0.30138379999999996!3d51.4641527!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4876033722424fa9%3A0x86a7a4a8e495431f!2sSandwich%20platters%20delivery-%20Sandwich%20delivery%20-%20Office%20lunch!5e0!3m2!1sen!2suk!4v1711651400000!5m2!1sen!2suk"
                 className="w-full h-full grayscale contrast-[1.1] hover:grayscale-0 transition-all duration-1000"
                 style={{ border: 0 }}
                 allowFullScreen={true}
