@@ -1,153 +1,257 @@
 'use client';
 
-import { useState } from 'react';
-import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { 
+  Clock, 
+  ShieldCheck, 
+  Plus, 
+  Users, 
+  Box, 
+  Coffee, 
+  Leaf, 
+  Utensils, 
+  GlassWater, 
+  Cookie,
+  Flame,
+  LayoutGrid,
+  ShoppingBag,
+  TicketPercent,
+  AlertCircle
+} from 'lucide-react';
+import { useCart } from '@/context/CartContext';
+import DeliveryScheduler from '@/components/DeliveryScheduler';
+import toast from 'react-hot-toast';
 
 export default function MenuPage() {
-  const [activeTab, setActiveTab] = useState('canapes');
-  const [isFusion, setIsFusion] = useState(false);
+  const { addToCart, deliverySlot } = useCart();
+  const searchParams = useSearchParams();
+  const categoryParam = searchParams.get('category');
+  
+  const [activeTab, setActiveTab] = useState('Sandwich Platters');
+  const [flyingItem, setFlyingItem] = useState<{ id: number; x: number; y: number; img: string } | null>(null);
+  
+  const [dbProducts, setDbProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
+  // Mapping IDs to labels for the UI and the URL search params
   const menuCategories = [
-    { id: 'canapes', label: 'Canapés' },
-    { id: 'small-plates', label: 'Small Plates' },
-    { id: 'grand-platters', label: 'Grand Platters' },
+    { id: 'Sandwich Platters', label: 'Sandwich Platters', icon: <Users className="w-4 h-4" /> },
+    { id: 'Wrap Platters', label: 'Wrap Platters', icon: <LayoutGrid className="w-4 h-4" /> },
+    { id: 'Platters', label: 'All Platters', icon: <Users className="w-4 h-4" />, hidden: true }, // URL Sync helper
+    { id: 'Individual Sandwiches', label: 'Individual Sandwiches', icon: <ShoppingBag className="w-4 h-4" /> },
+    { id: 'Individual Boxes', label: 'Individual Boxes', icon: <Box className="w-4 h-4" /> },
+    { id: 'Lunch Boxes', label: 'Lunch Boxes', icon: <Box className="w-4 h-4" />, hidden: true }, // URL Sync helper
+    { id: 'Salad', label: 'Salads & Sides', icon: <Leaf className="w-4 h-4" /> },
+    { id: 'Breakfast Menu', label: 'Breakfast Menu', icon: <Coffee className="w-4 h-4" /> },
+    { id: 'Deserts', label: 'Desserts', icon: <Cookie className="w-4 h-4" /> },
+    { id: 'Snacks', label: 'Snacks', icon: <TicketPercent className="w-4 h-4" /> },
+    { id: 'Drinks', label: 'Cold Drinks', icon: <GlassWater className="w-4 h-4" /> },
+    { id: 'Plate, cutlery and napkins', label: 'Essentials', icon: <Utensils className="w-4 h-4" /> },
   ];
 
-  const menuItems = {
-    canapes: [
-      { 
-        title: "Classic Jollof Rice Balls", 
-        traditional: "The heart of West African celebration. Long-grain parboiled rice steamed in a rich, spiced tomato and red pepper base.", 
-        fusion: "Smoked Jollof risotto sphere with a parmesan crust and scotch bonnet jam.",
-        price: "£4.50 pp",
-        image: "/menu-canapes-0.jpg"
-      },
-      { 
-        title: "Traditional Beef Suya", 
-        traditional: "Authentic street-style skewers. Thinly sliced beef coated in 'Kuli-Kuli' (groundnut spice) and flash-grilled over open flames.", 
-        fusion: "Wagyu beef marinated in peanut-spiced yaji, served with pickled red onions and micro-greens.",
-        price: "£6.00 pp",
-        image: "/menu-canapes-1.jpg"
-      },
-      { 
-        title: "Hand-Battered Okra", 
-        traditional: "Crispy young okra pods, a staple snack found in bustling local markets, seasoned with sea salt and dry pepper.", 
-        fusion: "Lightly battered young okra with a Togarashi-Yaji dust and lime-ginger emulsion.",
-        price: "£4.00 pp",
-        image: "/menu-canapes-2.jpg"
+  useEffect(() => {
+    async function fetchLiveMenu() {
+      try {
+        const res = await fetch('/api/admin/products', { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          setDbProducts(data);
+        }
+      } catch (err) {
+        console.error("Error loading live menu items:", err);
+      } finally {
+        setLoading(false);
       }
-    ],
-    'small-plates': [
-      { 
-        title: "Sweet Fried Plantain (Dodo)", 
-        traditional: "Perfectly ripened yellow plantains, sliced and golden-fried to unlock their natural caramel sweetness.", 
-        fusion: "Hand-rolled sweet plantain gnocchi in a brown butter and sage reduction with crumbled feta.",
-        price: "£14.00",
-        image: "/menu-small-plates-0.jpg"
-      },
-      { 
-        title: "Authentic Egusi & Yam", 
-        traditional: "Slow-simmered melon seed soup with spinach and traditional seasonings, paired with smooth, pounded yam.", 
-        fusion: "Toasted melon seed tuile, wilted spinach puree, and pan-seared sea bass over yam fondant.",
-        price: "£18.00",
-        image: "/menu-small-plates-1.jpg"
-      },
-      { 
-        title: "Ofada Rice & Ayamase", 
-        traditional: "Unpolished designer rice served with the legendary 'Designer Stew'—a spicy, bleached palm oil and green pepper relish.", 
-        fusion: "48-hour braised beef short rib with a green bell pepper reduction and crispy puffed rice.",
-        price: "£21.00",
-        image: "/menu-small-plates-2.jpg"
+    }
+    fetchLiveMenu();
+  }, []);
+
+  // Sync the active tab with the Home Page links
+  useEffect(() => {
+    if (categoryParam) {
+      // Map 'Lunch Boxes' URL param to 'Individual Boxes' DB category if needed
+      let targetId = categoryParam;
+      if (categoryParam === 'Lunch Boxes') targetId = 'Individual Boxes';
+      if (categoryParam === 'Platters') targetId = 'Sandwich Platters';
+      if (categoryParam === 'Breakfast') targetId = 'Breakfast Menu';
+
+      if (menuCategories.some(c => c.id === targetId)) {
+        setActiveTab(targetId);
       }
-    ],
-    'grand-platters': [
-      { 
-        title: "The Sunday Heritage Roast", 
-        traditional: "A celebratory spread of oven-roasted chicken, classic Jollof rice, fried plantain, and seasoned steamed vegetables.", 
-        fusion: "Spiced spatchcock guinea fowl, truffle-infused Jollof, and honey-glazed heritage carrots.",
-        price: "£65.00 (Serves 2)",
-        image: "/menu-grand-platters-0.jpg"
-      },
-      { 
-        title: "Fisherman’s Soup Platter", 
-        traditional: "A bounty of the coast. Fresh catch of the day, jumbo prawns, and local shellfish in a spicy, aromatic broth.", 
-        fusion: "Lobster tail, jumbo prawns, and scallops in a silky okra-infused saffron bisque.",
-        price: "£85.00 (Serves 2)",
-        image: "/menu-grand-platters-1.jpg"
-      },
-      { 
-        title: "Yaji-Spiced Lamb Chops", 
-        traditional: "Tender lamb chops rubbed with a potent blend of northern spices and grilled to succulent perfection.", 
-        fusion: "Full rack of lamb with a pistachio-yaji crust, served with smashed yam and red wine jus.",
-        price: "£75.00 (Serves 2)",
-        image: "/menu-grand-platters-2.jpg"
-      }
-    ]
+    }
+  }, [categoryParam]);
+
+  const handleAddToBasket = (e: React.MouseEvent, item: any) => {
+    e.preventDefault();
+    if (item.stock <= 0 || item.isAvailable === false) {
+      toast.error("SORRY, THIS ITEM IS SOLD OUT", { icon: '🚫' });
+      return;
+    }
+    if (!deliverySlot) {
+      toast.error("PLEASE SELECT A DELIVERY SLOT AT THE TOP FIRST", {
+        icon: '📅',
+        style: { borderRadius: '10px', background: '#333', color: '#fff' }
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    setFlyingItem({
+      id: Date.now(),
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
+      img: item.image
+    });
+      
+    addToCart({
+      id: item._id,
+      name: item.name,
+      price: item.price,
+      image: item.image,
+      isAvailable: item.isAvailable ?? true 
+    });
+
+    setTimeout(() => setFlyingItem(null), 900);
+  };
+
+  const getDisplayItems = () => {
+    return dbProducts.filter(item => item.category === activeTab);
   };
 
   return (
-    <main className="bg-white min-h-screen text-[#0f172a]">    
+    <main className="bg-white min-h-screen text-slate-900 overflow-x-hidden pt-10">
+      <style jsx global>{`
+        @keyframes flyToCart {
+          0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+          20% { transform: translate(-50%, -50%) scale(1.4) rotate(-15deg); }
+          100% { left: 95vw; top: 90vh; transform: translate(-100%, -50%) scale(0.1) rotate(90deg); opacity: 0; }
+        }
+      `}</style>
 
-      {/* 2. HEADER SECTION */}
-      <section className="py-20 px-6 max-w-5xl mx-auto text-center">
-        <span className="text-[#f06428] font-black uppercase tracking-[0.4em] text-[10px] block mb-4">The Traditional Archive</span>
-        <h1 className="text-6xl md:text-8xl font-black uppercase tracking-tighter mb-12">The <span className="text-[#f06428]">Roots.</span></h1>
-        
-        {/* FUSION TOGGLE */}
-        <div className="inline-flex items-center p-1 bg-slate-100 rounded-full mb-16">
-          <button 
-            onClick={() => setIsFusion(false)}
-            className={`px-8 py-3 rounded-full font-black uppercase tracking-widest text-[10px] transition-all ${!isFusion ? 'bg-[#0f172a] shadow-md text-white' : 'text-slate-400'}`}
-          >
-            Traditional
-          </button>
-          <button 
-            onClick={() => setIsFusion(true)}
-            className={`px-8 py-3 rounded-full font-black uppercase tracking-widest text-[10px] transition-all ${isFusion ? 'bg-[#f06428] shadow-md text-white' : 'text-slate-400'}`}
-          >
-            The Fusion
-          </button>
+      {/* SYNCED: Sticky Wrapper maintains consistency with Home Page layout */}
+      <div className="sticky top-[80px] z-[100] transition-all duration-300">
+        <DeliveryScheduler />
+      </div>
+
+      {flyingItem && (
+        <div
+          className="fixed pointer-events-none z-[9999] w-20 h-20 rounded-2xl overflow-hidden shadow-2xl border-2 border-white"
+          style={{
+            left: flyingItem.x,
+            top: flyingItem.y,
+            animation: 'flyToCart 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards'
+          }}
+        >
+          <img src={flyingItem.img} className="w-full h-full object-cover" alt="flying" />
         </div>
+      )}
 
-        {/* CLICKABLE CATEGORY TABS */}
-        <div className="flex justify-center gap-8 border-b border-slate-100 mb-16 overflow-x-auto whitespace-nowrap">
-          {menuCategories.map((cat) => (
-            <button 
+      <section className="py-16 px-6 max-w-6xl mx-auto text-center">
+        <div className="flex justify-center items-center gap-2 mb-6">
+          <div className="h-[1px] w-8 bg-[#b32d3a]"></div>
+          <span className="text-[#b32d3a] font-black uppercase tracking-[0.4em] text-[10px]">The Office Lunch Richmond</span>
+          <div className="h-[1px] w-8 bg-[#b32d3a]"></div>
+        </div>
+        
+        <h1 className="text-6xl md:text-7xl font-black uppercase tracking-tighter mb-12 leading-none text-balance text-slate-900">
+          Catering for <br />
+          <span className="text-[#b32d3a]">Every Scale.</span>
+        </h1>
+        
+        <div className="flex flex-wrap justify-center gap-2 md:gap-3 mb-16 max-w-7xl mx-auto px-4">
+          {menuCategories.filter(c => !c.hidden).map((cat) => (
+            <button
               key={cat.id}
+              type="button"
               onClick={() => setActiveTab(cat.id)}
-              className={`pb-4 font-black uppercase tracking-widest text-[10px] border-b-2 transition-all ${activeTab === cat.id ? 'border-[#f06428] text-[#f06428]' : 'border-transparent text-slate-400'}`}
+              className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all border-2 ${
+                activeTab === cat.id
+                  ? 'bg-[#b32d3a] border-[#b32d3a] text-white shadow-lg scale-105'
+                  : 'bg-white border-slate-100 text-slate-800 hover:border-slate-300'
+              }`}
             >
+              <span className={activeTab === cat.id ? 'text-white' : 'text-[#b32d3a]'}>
+                {cat.icon}
+              </span>
               {cat.label}
             </button>
           ))}
         </div>
       </section>
 
-      {/* 3. EDITORIAL GALLERY GRID */}
       <section className="px-6 pb-24 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-          {(menuItems[activeTab as keyof typeof menuItems] || []).map((item, i) => (
-            <div key={i} className="group border-b border-slate-100 pb-12 flex flex-col md:flex-row gap-8 items-start">
-              <div className="w-full md:w-48 h-48 bg-slate-100 rounded-3xl overflow-hidden shrink-0">
-                 <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-              </div>
-              <div className="flex-1">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-2xl font-black uppercase tracking-tight leading-none">{item.title}</h3>
-                  <span className="text-[#f06428] font-black text-sm">{item.price}</span>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {getDisplayItems().map((item) => {
+            const isSoldOut = item.stock <= 0 || item.isAvailable === false;
+            
+            return (
+              <div key={item._id} className="group bg-slate-50/50 rounded-[2.5rem] p-6 flex flex-col md:flex-row gap-6 items-center border border-transparent hover:border-slate-200 transition-all shadow-sm">
+                
+                <div className="relative w-full md:w-48 h-48 shrink-0">
+                  <div className="w-full h-full bg-white rounded-3xl overflow-hidden shadow-inner relative">
+                    <img 
+                      src={item.image} 
+                      alt={item.name} 
+                      className={`w-full h-full object-cover transition-transform duration-700 ${isSoldOut ? 'grayscale' : 'group-hover:scale-105'}`} 
+                    />
+                    {isSoldOut && (
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[1px]">
+                        <span className="text-white font-black uppercase tracking-widest text-[10px] border-2 border-white px-4 py-2 rounded-full">Sold Out</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {!isSoldOut && (
+                    <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/10 rounded-3xl">
+                      <button
+                        type="button"
+                        onClick={(e) => handleAddToBasket(e, item)}
+                        className="bg-white text-slate-900 px-4 py-2 rounded-full font-black uppercase text-[9px] tracking-widest flex items-center gap-2 shadow-xl hover:bg-[#b32d3a] hover:text-white transition-all active:scale-90"
+                      >
+                        Add <Plus className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
                 </div>
-                <p className="text-slate-500 font-medium leading-relaxed italic mb-4">
-                  {isFusion ? item.fusion : item.traditional}
-                </p>
-                <div className="flex items-center gap-2">
-                  <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${isFusion ? 'bg-orange-50 border-orange-200 text-[#f06428]' : 'bg-slate-50 border-slate-200 text-slate-600'}`}>
-                    {isFusion ? 'Modern Interpretation' : 'Original Roots'}
-                  </span>
+
+                <div className="flex-1 w-full text-left">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-lg font-black uppercase text-slate-900 tracking-tight leading-tight">{item.name}</h3>
+                    <span className="text-[#b32d3a] font-black text-sm whitespace-nowrap ml-4">£{(item.price || 0).toFixed(2)}</span>
+                  </div>
+                  <p className="text-slate-600 font-medium text-xs leading-relaxed mb-4 line-clamp-3 italic">{item.description}</p>
+                  
+                  <div className="flex flex-wrap gap-2">
+                    {item.stock > 0 && item.stock <= 5 && (
+                      <span className="flex items-center gap-1 text-[9px] font-black text-[#b32d3a] uppercase tracking-widest px-2 py-1 bg-red-50 rounded-lg animate-pulse">
+                        <Flame className="w-3 h-3" /> Low Stock
+                      </span>
+                    )}
+                    <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg bg-white border border-slate-200 text-slate-400">
+                      <ShieldCheck className="w-3 h-3" /> Eco Friendly
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
+        
+        {loading && (
+          <div className="flex flex-col items-center mt-20 gap-4">
+             <div className="w-8 h-8 border-4 border-[#b32d3a] border-t-transparent rounded-full animate-spin"></div>
+             <p className="font-black uppercase text-slate-400 text-xs tracking-widest">Refreshing Kitchen...</p>
+          </div>
+        )}
+        
+        {!loading && getDisplayItems().length === 0 && (
+          <div className="text-center mt-20 py-20 bg-slate-50 rounded-[3rem]">
+            <AlertCircle className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+            <p className="font-black uppercase text-slate-400 text-sm tracking-widest">No items found in this category</p>
+          </div>
+        )}
       </section>
     </main>
   );

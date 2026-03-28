@@ -1,67 +1,156 @@
 'use client';
-import { createContext, useContext, useState, ReactNode, useCallback } from 'react';
+import { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+
+const MIN_ORDER_VALUE = 50.00;
+const STANDARD_DELIVERY_FEE = 15.00;
 
 type CartItem = {
-  id: number;
+  id: number | string;
   name: string;
   price: number;
   image: string;
   quantity: number;
+  isAvailable?: boolean;
+};
+
+type Address = {
+  _id?: string;
+  addressLine1: string;
+  telephone: string;
+  label?: string;
+  isDefault?: boolean;
 };
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (item: any) => void;
-  removeFromCart: (id: number) => void;
-  decrementQuantity: (id: number) => void;
+  isOpen: boolean;
+  isPulsing: boolean;
+  deliverySlot: string | null;
+  selectedDate: string;
+  selectedAddress: Address | null;
+  setIsOpen: (open: boolean) => void;
+  setDeliverySlot: (slot: string | null) => void;
+  setSelectedDate: (date: string) => void;
+  setSelectedAddress: (address: Address | null) => void;
+  addToCart: (product: any) => void;
+  removeFromCart: (id: number | string) => void;
+  decrementQuantity: (id: number | string) => void;
   clearCart: () => void;
+  placeOrder: (userId?: string) => Promise<{ success: boolean; orderId?: string; error?: string }>;
   total: number;
+  grandTotal: number;
+  cartCount: number;
+  minOrderMet: boolean;
+  deliveryFee: number;
+  amountToMin: number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const { data: session, status } = useSession(); 
+  const today = new Date().toISOString().split('T')[0];
 
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isPulsing, setIsPulsing] = useState(false);
+  const [deliverySlot, setDeliverySlot] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string>(today);
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+
+  useEffect(() => {
+    const fetchUserAddress = async () => {
+      if (status === "authenticated" && !selectedAddress) {
+        try {
+          const res = await fetch('/api/user/address'); 
+          if (res.ok) {
+            const userData = await res.json();
+            const primary = userData.addresses?.find((addr: any) => addr.isDefault);
+            if (primary) setSelectedAddress(primary);
+          }
+        } catch (err) {
+          console.error("CartContext: Address Sync Error", err);
+        }
+      }
+    };
+    fetchUserAddress();
+  }, [status, selectedAddress]);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      setSelectedAddress(null);
+    }
+  }, [status]);
+
+  /**
+   * REORDER FIX: 
+   * We now look for 'productId' or 'id' and accept an incoming 'quantity'.
+   */
   const addToCart = (product: any) => {
     setItems((prev) => {
-      const existing = prev.find((i) => i.id === product.id);
+      const productId = product.id || product._id || product.productId || product.name;
+      const existing = prev.find((i) => i.id === productId);
+      
+      // If we are reordering, product.quantity will exist. If shopping, default to 1.
+      const qtyToAdd = product.quantity || 1;
+
       if (existing) {
-        return prev.map((i) => i.id === product.id ? { ...i, quantity: i.quantity + 1 } : i);
+        return prev.map((i) => i.id === productId ? { ...i, quantity: i.quantity + qtyToAdd } : i);
       }
-      return [...prev, { ...product, quantity: 1 }];
+      return [...prev, { 
+        id: productId, 
+        name: product.name, 
+        price: product.price, 
+        image: product.image, 
+        quantity: qtyToAdd, 
+        isAvailable: product.isAvailable ?? true 
+      }];
     });
+    
+    // UI Feedback
+    setTimeout(() => {
+      setIsPulsing(true);
+      setTimeout(() => setIsPulsing(false), 600);
+    }, 200);
   };
 
-  const decrementQuantity = (id: number) => {
+  const decrementQuantity = (id: number | string) => {
     setItems((prev) => {
-      const existing = prev.find((i) => i.id === id);
-      if (existing?.quantity === 1) {
-        return prev.filter((i) => i.id !== id);
-      }
+      const target = prev.find((i) => i.id === id);
+      if (target?.quantity === 1) return prev.filter((i) => i.id !== id);
       return prev.map((i) => i.id === id ? { ...i, quantity: i.quantity - 1 } : i);
     });
   };
 
-  const removeFromCart = (id: number) => {
+  const removeFromCart = (id: number | string) => {
     setItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  // FIXED: Using useCallback to prevent the infinite loop error
   const clearCart = useCallback(() => {
     setItems([]);
-  }, []);
+    setDeliverySlot(null);
+    setSelectedDate(today);
+    setSelectedAddress(null);
+  }, [today]);
 
   const total = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
+  const deliveryFee = total > 0 ? STANDARD_DELIVERY_FEE : 0;
+  const grandTotal = total + deliveryFee; 
+  const minOrderMet = total >= MIN_ORDER_VALUE;
+  const amountToMin = Math.max(0, MIN_ORDER_VALUE - total);
+
+  const placeOrder = async (userId?: string) => {
+    return { success: true };
+  };
 
   return (
     <CartContext.Provider value={{ 
-      items, 
-      addToCart, 
-      removeFromCart, 
-      decrementQuantity, 
-      clearCart, 
-      total 
+      items, isOpen, isPulsing, deliverySlot, selectedDate, selectedAddress,
+      setIsOpen, setDeliverySlot, setSelectedDate, setSelectedAddress,
+      addToCart, removeFromCart, decrementQuantity, clearCart, placeOrder, 
+      total, grandTotal, cartCount, minOrderMet, deliveryFee, amountToMin
     }}>
       {children}
     </CartContext.Provider>

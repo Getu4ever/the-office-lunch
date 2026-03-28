@@ -1,62 +1,73 @@
-import { NextResponse } from 'next/server';
-import Stripe from 'stripe';
+import { NextResponse } from "next/server";
+import Stripe from "stripe";
+import dbConnect from "@/lib/mongodb";
+import Product from "@/models/Product";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-01-27.acacia' as any,
+  apiVersion: "2025-01-27.acacia" as any,
 });
 
 export async function POST(req: Request) {
   try {
-    const { cartItems, metadata } = await req.json();
-    const origin = req.headers.get('origin') || 'http://localhost:3000'; 
+    await dbConnect(); 
+    const body = await req.json();
+    const { cartItems, userEmail, userId, deliverySlot, selectedDate } = body;
 
-    // Build the line items
+    if (!cartItems || cartItems.length === 0) {
+      return NextResponse.json({ error: "Basket is empty" }, { status: 400 });
+    }
+
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+
+    // 1. Prepare Line Items (Stripe uses this for the Checkout Page UI)
+    // We keep the images here so the customer SEES the food on the Stripe page.
     const line_items = cartItems.map((item: any) => {
-      const productData: any = {
-        name: item.name,
-      };
-
-      if (item.image) {
-        /**
-         * IMAGE LOGIC:
-         * 1. If the image is an external link (starts with 'http'), use it directly.
-         * 2. If it's a local path (starts with '/'), prepend the Vercel Base URL.
-         * 3. This ensures Stripe always receives a valid public HTTPS URL.
-         */
-        const imageUrl = item.image.startsWith('http')
-          ? item.image
-          : `${process.env.NEXT_PUBLIC_BASE_URL}${item.image}`;
-        
-        productData.images = [imageUrl];
+      let imageUrl = item.image || item.img;
+      
+      // Ensure absolute URL for Stripe
+      if (imageUrl && !imageUrl.startsWith('http')) {
+        imageUrl = `${baseUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
       }
 
       return {
         price_data: {
-          currency: 'gbp',
-          product_data: productData,
+          currency: "gbp",
+          product_data: {
+            name: item.name,
+            images: imageUrl ? [imageUrl] : [],
+          },
           unit_amount: Math.round(item.price * 100),
         },
-        quantity: item.quantity,
+        quantity: Number(item.quantity || item.qty),
       };
     });
 
+    // 2. Create the Session with COMPRESSED Metadata
+    // We remove 'name' and 'image' from metadata to stay under the 500-character limit.
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: line_items,
-      mode: 'payment',
+      payment_method_types: ["card"],
+      line_items,
+      mode: "payment",
+      success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/menu`,
+      customer_email: userEmail || undefined,
+      shipping_address_collection: { allowed_countries: ["GB"] },
       metadata: {
-        eventDate: metadata?.eventDate || 'Not specified',
+        userId: userId || "",
+        userEmail: userEmail || "",
+        deliverySlot: deliverySlot || "",
+        eventDate: selectedDate || "",
+        // COMPRESSED: Only ID and Quantity. Webhook will fetch the rest from DB.
+        cartDetails: JSON.stringify(cartItems.map((i: any) => ({
+          id: i._id || i.id,
+          q: Number(i.quantity || i.qty)
+        })))
       },
-      success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/shop`, // Returning to shop makes for a better user experience
     });
 
     return NextResponse.json({ url: session.url });
   } catch (err: any) {
-    console.error('❌ Stripe Checkout Error:', err.message);
-    return NextResponse.json(
-      { error: err.message || 'Internal Server Error' }, 
-      { status: 500 }
-    );
+    console.error("❌ Checkout Error:", err.message);
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

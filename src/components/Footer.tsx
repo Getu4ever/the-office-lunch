@@ -1,150 +1,141 @@
 'use client';
-import { useState } from 'react'; // Added for logic
 import Link from 'next/link';
-import { Instagram, Twitter, Facebook, Mail, MapPin, Phone, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
+import { Instagram, Twitter, Facebook, Mail, MapPin, Phone, ArrowRight } from 'lucide-react';
 
 export default function Footer() {
-  const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-
-    setStatus('loading');
-
-    try {
-      const response = await fetch('/api/newsletter', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-
-      if (response.ok) {
-        setStatus('success');
-        setEmail('');
-      } else {
-        setStatus('error');
-      }
-    } catch (err) {
-      setStatus('error');
-    }
-  };
-
   return (
-    <footer className="bg-black text-white pt-24 pb-12 px-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-24">
+    <footer className="bg-[#0f172a] text-white pt-24 pb-12 px-6">
+      <div className="max-w-[1440px] mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-24 items-start">
           
-          {/* Brand Column */}
+          {/* Column 1: Brand Info */}
           <div className="space-y-8">
-            <div>
+            <div className="flex flex-col">
               <Link href="/">
-                <h2 className="text-2xl font-black uppercase tracking-tighter italic cursor-pointer">The Catering Co.</h2>
+                <h2 className="text-[22px] font-black uppercase tracking-tighter italic cursor-pointer leading-none">
+                  The Office Lunch
+                </h2>
               </Link>
-              <p className="text-slate-400 mt-4 text-sm leading-relaxed max-w-xs">
-                Bespoke African & Caribbean culinary experiences for weddings, corporate galas, and private estates.
+              <img 
+                src="/logo.png" 
+                alt="Logo" 
+                className="h-16 w-auto mt-10 mb-6 object-contain self-start" 
+              />
+              <p className="text-slate-400 text-sm leading-relaxed font-medium max-w-[280px]">
+                Premium corporate catering and sandwich platters delivered fresh across London and Surrey.
               </p>
             </div>
+            
             <div className="flex gap-4">
               {[Instagram, Twitter, Facebook].map((Icon, i) => (
-                <a key={i} href="#" className="p-3 bg-white/5 rounded-full hover:bg-orange-600 transition-colors group">
+                <a key={i} href="#" className="p-4 bg-white/5 rounded-full hover:bg-[#b32d3a] transition-all group">
                   <Icon className="w-5 h-5 text-slate-400 group-hover:text-white" />
                 </a>
               ))}
             </div>
           </div>
 
-          {/* Service Menu */}
-          <div>
-            <h4 className="font-black uppercase text-xs tracking-[0.2em] mb-8 text-[#f06428]">Service Menu</h4>
+          {/* Column 2: Navigation */}
+          <div className="lg:ml-10"> 
+            <h4 className="font-black uppercase text-xs tracking-[0.2em] mb-8 text-[#b32d3a]">
+              Navigation
+            </h4>
             <ul className="space-y-4 text-sm font-bold text-slate-300">
-              <li><Link href="/services/weddings" className="hover:text-white transition-colors">Wedding Packages</Link></li>
-              <li><Link href="/services/corporate" className="hover:text-white transition-colors">Corporate Platters</Link></li>
-              <li><Link href="/services/private-chef" className="hover:text-white transition-colors">Private Chef Hire</Link></li>
-              <li><Link href="/services/beverage" className="hover:text-white transition-colors">Beverage Curation</Link></li>
+              <li>
+                <Link href="/menus" className="hover:text-[#b32d3a] transition-colors flex items-center gap-2 group">
+                  Our Menu <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                </Link>
+              </li>
+              <li>
+                <Link href="/about" className="hover:text-[#b32d3a] transition-colors flex items-center gap-2 group">
+                  About Us <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="hover:text-[#b32d3a] transition-colors flex items-center gap-2 group">
+                  Contact <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                </Link>
+              </li>
+              <li>
+                <Link href="/login" className="hover:text-[#b32d3a] transition-colors flex items-center gap-2 group">
+                  Log In <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                </Link>
+              </li>
             </ul>
           </div>
 
-          {/* Contact Info */}
+          {/* Column 3: Opening Hours (Newly Positioned) */}
           <div>
-            <h4 className="font-black uppercase text-xs tracking-[0.2em] mb-8 text-[#f06428]">Office</h4>
-            <ul className="space-y-6 text-sm font-bold text-slate-300">
-              <li className="flex items-start gap-4">
-                <MapPin className="w-5 h-5 text-slate-500 shrink-0" />
-                <span>12 Knightsbridge Gardens,<br />London, SW1X 7LY</span>
-              </li>
-              <li className="flex items-center gap-4">
-                <Phone className="w-5 h-5 text-slate-500 shrink-0" />
-                <span>+44 20 7123 4567</span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Newsletter / Guestlist */}
-          <div>
-            <h4 className="font-black uppercase text-xs tracking-[0.2em] mb-8 text-[#f06428]">Guestlist</h4>
-            
-            {status === 'success' ? (
-              <div className="flex items-center gap-2 text-[#f06428] py-2">
-                <CheckCircle2 className="w-4 h-4" />
-                <p className="text-xs font-bold uppercase tracking-wider">Thank you for subscribing!</p>
+            <h4 className="font-black uppercase text-xs tracking-[0.2em] mb-8 text-[#b32d3a]">Opening Hours</h4>
+            <div className="space-y-4">
+              <div className="flex flex-col gap-1">
+                <span className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-500">
+                  Everyday
+                </span>
+                <span className="text-2xl font-black text-white tracking-tighter">
+                  6:00am — 8:00pm
+                </span>
               </div>
-            ) : (
-              <>
-                <p className="text-xs text-slate-500 mb-6 leading-relaxed">
-                  Join our mailing list for seasonal menus and event styling tips.
-                </p>
-                <form onSubmit={handleSubmit} className="relative">
-                  <input 
-                    type="email" 
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Email address"
-                    disabled={status === 'loading'}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-sm focus:outline-none focus:ring-2 focus:ring-[#f06428] transition-all disabled:opacity-50"
-                  />
-                  <button 
-                    type="submit" 
-                    disabled={status === 'loading'}
-                    className="absolute right-2 top-2 p-2 bg-[#f06428] rounded-xl hover:bg-orange-500 transition-colors disabled:bg-slate-700"
-                  >
-                    {status === 'loading' ? (
-                      <Loader2 className="w-4 h-4 animate-spin text-white" />
-                    ) : (
-                      <ArrowRight className="w-4 h-4 text-white" />
-                    )}
-                  </button>
-                </form>
-                {status === 'error' && (
-                  <p className="text-[10px] text-red-500 mt-2 font-bold uppercase tracking-tighter">Please try again.</p>
-                )}
-              </>
-            )}
+
+              <div className="pt-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.15em] text-[#b32d3a]">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#b32d3a] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#b32d3a]"></span>
+                </span>
+                Early Boardroom Delivery
+              </div>
+              <p className="text-[11px] text-slate-400 font-medium leading-relaxed max-w-[200px]">
+                Serving fresh office breakfasts and boardroom lunches across London & Richmond.
+              </p>
+            </div>
           </div>
 
+          {/* Column 4: Contact Us (Final Endpoint) */}
+          <div>
+            <h4 className="font-black uppercase text-xs tracking-[0.2em] mb-8 text-[#b32d3a]">Contact Us</h4>
+            <ul className="space-y-6 text-sm font-bold text-slate-300">
+              <li className="flex items-start gap-3 group">
+                <MapPin className="w-5 h-5 text-[#b32d3a] shrink-0" />
+                <span className="font-medium text-xs leading-relaxed group-hover:text-white transition-colors">Kew Rd, London TW9 2NA</span>
+              </li>
+              <li className="flex items-center gap-3 group">
+                <Phone className="w-5 h-5 text-[#b32d3a] shrink-0" />
+                <span className="font-medium text-xs group-hover:text-white transition-colors">+44 20 8243 8814</span>
+              </li>
+              <li className="flex items-center gap-3 group">
+                <Mail className="w-5 h-5 text-[#b32d3a] shrink-0" />
+                <span className="font-medium text-[10px] break-all uppercase tracking-tight group-hover:text-white transition-colors">orders@sandwichplatterdelivery.co.uk</span>
+              </li>
+            </ul>
+          </div>
         </div>
 
-       {/* Bottom Bar */}
-        <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex flex-col md:flex-row items-center gap-2 md:gap-6">
-            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
-              © 2026 The Catering Co. London. All Rights Reserved.
-            </p>
-            <span className="hidden md:block text-slate-800">|</span>
-            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
-              Crafted by <Link href="https://karoldigital.co.uk" target="_blank" className="hover:text-[#f06428] transition-colors">Karol Digital</Link>
-            </p>
-          </div>
-          
-          <div className="flex gap-8 text-[10px] font-bold text-slate-600 uppercase tracking-widest">
-            <Link href="/privacy" className="hover:text-slate-400">Privacy</Link>
-            <Link href="/terms" className="hover:text-slate-400">Terms</Link>
-            <Link href="/allergens" className="hover:text-slate-400">Allergens</Link>
+        {/* Bottom Bar */}
+        <div className="mt-12 bg-black py-8 px-6 -mx-6 -mb-12">
+          {/* Using a 3-column grid with custom alignment to avoid the right-side basket overlap */}
+          <div className="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-3 items-center gap-6 font-bold text-[10px] text-slate-400 uppercase tracking-widest">
+            
+            {/* LEFT: Copyright (Forced to one line) */}
+            <div className="text-center md:text-left whitespace-nowrap">
+              <p>© 2026 The Office Lunch Delivery. All Rights Reserved.</p>
+            </div>
+
+            {/* CENTER: Karol Digital */}
+            <div className="text-center">
+              <p>
+                Crafted by <Link href="https://karoldigital.co.uk" target="_blank" className="hover:text-[#b32d3a] transition-colors">Karol Digital</Link>
+              </p>
+            </div>
+
+            {/* RIGHT-CENTERED: Privacy & Terms (Shifted left to avoid the Basket overlap) */}
+            <div className="flex justify-center md:justify-start md:pl-20 gap-6 text-slate-600">
+              <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+              <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
+            </div>
+            
           </div>
         </div>
-        </div>
+      </div>
     </footer>
   );
 }

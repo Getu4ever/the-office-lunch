@@ -2,10 +2,14 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
+import AuthProvider from "@/components/AuthProvider";
 import Cart from "@/components/Cart";
 import Navbar from '@/components/Navbar';
 import Footer from "@/components/Footer";
-import PageTransition from '@/components/PageTransition'; // New import
+import StickyBasket from "@/components/StickyBasket";
+import PageTransition from '@/components/PageTransition';
+import LiveChat from "@/components/LiveChat";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,8 +22,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "The Catering Co. | Premium Events",
-  description: "Bespoke Caribbean & African Catering",
+  title: "The Office Lunch | Premium Office Catering Richmond",
+  description: "Fresh, chef-prepared corporate catering delivered from our Richmond kitchen straight to your boardroom.",
 };
 
 export default function RootLayout({
@@ -33,58 +37,53 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         style={{ 
           //@ts-ignore
-          "--brand-gold": "#f1c233", 
-          "--brand-green": "#94c47d" 
+          "--brand-red": "#b32d3a", 
+          "--brand-cream": "#f5f0e6" 
         }}
         suppressHydrationWarning={true}
       >
-        <CartProvider>
-          {/* Keep Navbar outside of transition so it stays fixed */}
-          <Navbar />
-          
-          <main className="min-h-screen">
-            <PageTransition>
-              {children}
-            </PageTransition>
-          </main>
+        {/* Place LiveChat first so it loads independently of transitions */}
+        <LiveChat />
 
-          <Footer />
-          
-          <Cart />
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <Toaster 
+              position="bottom-right"
+              toastOptions={{
+                style: {
+                  background: '#0f172a',
+                  color: '#fff',
+                  borderRadius: '1rem',
+                  fontSize: '11px',
+                  fontWeight: '900',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.15em',
+                  padding: '16px 24px',
+                  boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)'
+                },
+                success: {
+                  iconTheme: {
+                    primary: '#b32d3a',
+                    secondary: '#fff',
+                  },
+                },
+              }}
+            />
+            
+            <Navbar />
+            
+            <main className="min-h-screen">
+              <PageTransition>
+                {children} 
+              </PageTransition>
+            </main>
 
-        {/* Chatbase Script */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(){
-                if(!window.chatbase || window.chatbase("getState")!=="initialized"){
-                  window.chatbase=(...arguments)=>{
-                    if(!window.chatbase.q){window.chatbase.q=[]}
-                    window.chatbase.q.push(arguments)
-                  };
-                  window.chatbase=new Proxy(window.chatbase,{
-                    get(target,prop){
-                      if(prop==="q"){return target.q}
-                      return(...args)=>target(prop,...args)
-                    }
-                  })
-                }
-
-                const onLoad=function(){
-                  const script=document.createElement("script");
-                  script.src="https://www.chatbase.co/embed.min.js";
-                  script.id="cn8XxlevKOTIx0z1Oyy4S";
-                  script.domain="www.chatbase.co";
-                  document.body.appendChild(script)
-                };
-                
-                if(document.readyState==="complete"){onLoad()}
-                else{window.addEventListener("load",onLoad)}
-              })();
-            `,
-          }}
-        />
+            <Footer />
+            
+            <Cart />
+            <StickyBasket />
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

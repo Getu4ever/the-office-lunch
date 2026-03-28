@@ -9,25 +9,36 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^17.3.1",
     "framer-motion": "^12.36.0",
-    "jspdf": "^4.2.0",
+    "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.7",
     "lucide-react": "^0.577.0",
+    "mongodb": "^6.13.1",
+    "mongoose": "^8.23.0",
     "next": "16.1.6",
+    "next-auth": "^5.0.0-beta.30",
+    "next-cloudinary": "^6.17.5",
     "nodemailer": "^8.0.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "resend": "^6.9.3",
+    "react-hot-toast": "^2.6.0",
+    "resend": "^6.9.4",
     "stripe": "^20.4.1"
   },
   "devDependencies": {
+    "@auth/mongodb-adapter": "^3.7.10",
     "@tailwindcss/postcss": "^4.2.1",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/nodemailer": "^7.0.11",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.27",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "postcss": "^8.5.8",
     "tailwindcss": "^4.2.1",
     "typescript": "^5"
   }

@@ -1,0 +1,86 @@
+{
+  "Sandwich Platters": [
+    { "name": "Sandwich Platter Meat", "description": "5-6 people (24 quarters). Pastrami & cheddar, Ham & mozzarella.", "price": 35.00, "image": "/menu/sandwich_platters/sandwich_platter_meat.png" },
+    { "name": "Sandwich Platter Mixture", "description": "5-6 people (24 quarters). Salmon, Pastrami, and Homous mix.", "price": 35.00, "image": "/menu/sandwich_platters/sandwich_platter_mixture.jpg" },
+    { "name": "Sandwich Platter Vegetarian", "description": "5-6 people (24 quarters). Homous, Cream cheese, Olive tapenade.", "price": 32.00, "image": "/menu/sandwich_platters/sandwich_platter_vegetarian.jpg" },
+    { "name": "Sandwich Platter Chicken", "description": "5-6 people (24 quarters). Coronation chicken and Chicken tikka.", "price": 32.00, "image": "/menu/sandwich_platters/sandwich_platter_chicken.jpg" },
+    { "name": "Sandwich Platter Vegan", "description": "5-6 people (24 quarters). Homous & cucumber, Guacamole & tomato.", "price": 30.00, "image": "/menu/sandwich_platters/sandwich_platter_vegan.jpg" },
+    { "name": "Sandwich Platter Veggie (2)", "description": "5-6 people (24 quarters). Egg mayo, Branston & cheddar, Cheese & onion.", "price": 30.00, "image": "/menu/sandwich_platters/sandwich_platter_veggie_2.jpg" },
+    { "name": "Sandwich Platter Gluten Free", "description": "5-6 people (24 quarters). Assorted fillings on GF bread.", "price": 30.00, "image": "/menu/sandwich_platters/sandwich_platter_gluten_free.jpg" },
+    { "name": "Bagel Platter", "description": "5-6 people (6 full bagels). Pastrami with cheddar and mayo.", "price": 35.00, "image": "/menu/sandwich_platters/bagel_platter.jpg" }
+  ],
+  "Wrap Platters": [
+    { "name": "Wrap Platter Meat", "description": "7-8 people (16 halves). Pastrami, cheddar, Ham & mozzarella.", "price": 38.00, "image": "/menu/wrap_platters/wrap_platter_meat.jpg" },
+    { "name": "Wrap Platter Mixture", "description": "7-8 people (16 halves). Salmon, Chicken tikka, and Ham & cheese.", "price": 38.00, "image": "/menu/wrap_platters/wrap_platter_mixture.jpg" },
+    { "name": "Wrap Platter Seafood", "description": "7-8 people (16 halves). Smoked salmon and Tuna mayo.", "price": 38.00, "image": "/menu/wrap_platters/wrap_platter_seafood.jpg" },
+    { "name": "Wrap Platter Vegan", "description": "7-8 people (16 halves). Homous & cucumber, Guacamole & tomato.", "price": 35.00, "image": "/menu/wrap_platters/wrap_platter_vegan.jpg" },
+    { "name": "Wrap Platter Vegetarian", "description": "7-8 people (16 halves). Egg mayo, Branston & cheddar, Cheese & onion.", "price": 35.00, "image": "/menu/wrap_platters/wrap_platter_vegetarian.jpg" },
+    { "name": "Wrap Platter Chicken", "description": "7-8 people (16 halves). Coronation chicken and Chicken tikka.", "price": 35.00, "image": "/menu/wrap_platters/wrap_platter_chicken.jpg" },
+    { "name": "Wrap Platter Gluten Free", "description": "7-8 people (16 halves). Assorted fillings on GF wraps.", "price": 38.00, "image": "/menu/wrap_platters/wrap_platter_gluten_free.jpg" },
+    { "name": "Mini Wrap Platter", "description": "10 people (20 mini wraps). Variety of meat and veg mini wraps.", "price": 42.00, "image": "/menu/wrap_platters/mini_wrap_platter.jpg" }
+  ],
+  "Individual Sandwiches": [
+    { "name": "Classic Salmon Sandwich", "description": "Smoked salmon and cream cheese.", "price": 5.50, "image": "/menu/individual_sandwiches/classic_salmon_sandwich.jpg" },
+    { "name": "Classic New York", "description": "Pastrami, cheddar, gherkins, and mustard.", "price": 5.50, "image": "/menu/individual_sandwiches/classic_new_york.jpg" },
+    { "name": "B.L.T.", "description": "Classic Bacon, Lettuce, and Tomato.", "price": 5.50, "image": "/menu/individual_sandwiches/blt.jpg" },
+    { "name": "Chicken Mayo Sandwich", "description": "Classic creamy chicken mayo.", "price": 5.50, "image": "/menu/individual_sandwiches/chicken_mayo_sandwich.jpg" },
+    { "name": "Tuna Mayo Sweetcorn", "description": "Tuna mayo with sweetcorn.", "price": 5.00, "image": "/menu/individual_sandwiches/tuna_mayo_sweetcorn.jpg" },
+    { "name": "Cream Cheese Sandwich", "description": "Cream cheese with cucumber.", "price": 4.80, "image": "/menu/individual_sandwiches/cream_cheese_sandwich.jpg" }
+  ],
+  "Individual Boxes": [
+    { "name": "Chicken Tikka Meal Box", "description": "Chicken tikka, roasted vegetables and salad.", "price": 18.00, "image": "/menu/individual_boxes/chicken_tikka_meal.jpg" },
+    { "name": "Vegetarian Meal Box", "description": "Mediterranean veg, couscous, and falafel.", "price": 16.00, "image": "/menu/individual_boxes/vegetarian_meal_box.jpg" },
+    { "name": "Vegan Protein Box", "description": "Quinoa, chickpeas, avocado, and seeds.", "price": 17.00, "image": "/menu/individual_boxes/vegan_protein_box.jpg" },
+    { "name": "Salmon Fillet Box", "description": "Salmon fillet, new potatoes and green beans.", "price": 20.00, "image": "/menu/individual_boxes/salmon_fillet_box.jpg" },
+    { "name": "Executive Lunch Box", "description": "Premium sandwich, crisps, fruit pot, and mini cake.", "price": 15.50, "image": "/menu/individual_boxes/executive_lunch_box.jpg" }
+  ],
+  "Salad": [
+    { "name": "Californian Super Salad", "description": "Brown rice, red cabbage, kale, and feta.", "price": 45.00, "image": "/menu/salad/californian_super_salad.jpg" },
+    { "name": "Green Power Salad", "description": "Broccoli, broad beans, kale, seeds, and asparagus.", "price": 45.00, "image": "/menu/salad/green_power_salad.jpg" },
+    { "name": "Greek Salad Platter", "description": "Tomato, cucumber, onion, olives, and feta.", "price": 35.00, "image": "/menu/salad/greek_salad_platter.jpg" },
+    { "name": "Caprese Salad", "description": "Tomatoes, mozzarella, oil, and basil.", "price": 32.00, "image": "/menu/salad/caprese_salad.jpg" },
+    { "name": "Panzanella Salad", "description": "Heirloom tomatoes, beans, mesclun, and croutons.", "price": 45.00, "image": "/menu/salad/panzanella_salad.jpg" },
+    { "name": "Penne Pasta with Pesto", "description": "Penne, pesto, peas, sweetcorn, and lemon.", "price": 38.00, "image": "/menu/salad/penne_pasta_with_pesto.jpg" },
+    { "name": "Turkish Piyaz Salad", "description": "Beans with chopped onions and parsley.", "price": 35.00, "image": "/menu/salad/turkish_piyaz_salad.jpg" },
+    { "name": "Veggie Dip with Homous", "description": "Celery, peppers, carrots with homous.", "price": 30.00, "image": "/menu/salad/veggie_dip_with_homous.jpg" },
+    { "name": "Pasta Salad Platter", "description": "Fusilli with Mediterranean roasted veg.", "price": 45.00, "image": "/menu/salad/pasta_salad_platter.jpg" },
+    { "name": "Quinoa & Beetroot Salad", "description": "Quinoa, roasted beetroot, orange dressing.", "price": 40.00, "image": "/menu/salad/quinoa_beetroot_salad.jpg" }
+  ],
+  "Breakfast Menu": [
+    { "name": "Breakfast Bagel Platter", "description": "Salmon & cream cheese, Bacon & egg bagels.", "price": 38.00, "image": "/menu/breakfast_menu/breakfast_bagel_platter.jpg" },
+    { "name": "Avocado on Toast Kit", "description": "Avocado, sourdough, and chili flakes.", "price": 35.00, "image": "/menu/breakfast_menu/avocado_on_toast_kit.jpg" },
+    { "name": "Bacon Roll Platter", "description": "10 soft rolls with crispy back bacon.", "price": 32.00, "image": "/menu/breakfast_menu/bacon_roll_platter.jpg" }
+  ],
+  "Deserts": [
+    { "name": "Macaron Platter", "description": "24 pieces including Salted Caramel and Choc.", "price": 24.00, "image": "/menu/deserts/macaron_platter.jpg" },
+    { "name": "Cupcake Mixture", "description": "18 pieces of flavoured cupcakes.", "price": 30.00, "image": "/menu/deserts/cupcake_mixture.jpg" },
+    { "name": "Fruit Basket Platter", "description": "Seasonal whole fruits mix.", "price": 24.00, "image": "/menu/deserts/fruit_basket_platter.jpg" },
+    { "name": "Brownie Bites", "description": "30 pieces of rich chocolate brownie.", "price": 28.00, "image": "/menu/deserts/brownie_bites.jpg" },
+    { "name": "Muffin Platter", "description": "12 large assorted muffins.", "price": 28.00, "image": "/menu/deserts/muffin_platter.jpg" },
+    { "name": "Seasonal Fruit Salad", "description": "Chopped seasonal fruits (Serves 5-6).", "price": 35.00, "image": "/menu/deserts/seasonal_fruit_salad.jpg" },
+    { "name": "Cheese & Fruit Platter", "description": "Cheddar, Manchego, Grapes, Strawberries.", "price": 50.00, "image": "/menu/deserts/cheese_fruit_platter.jpg" },
+    { "name": "Flapjack Bites", "description": "60 pieces of honey and oat flapjacks.", "price": 25.00, "image": "/menu/deserts/flapjack_bites.jpg" },
+    { "name": "Cookie Monster Platter", "description": "24 large chocolate chip cookies.", "price": 24.00, "image": "/menu/deserts/cookie_monster_platter.jpg" },
+    { "name": "Mini Cake Selection", "description": "20 pieces of assorted mini cakes.", "price": 32.00, "image": "/menu/deserts/mini_cake_selection.jpg" }
+  ],
+  "Drinks": [
+    { "name": "Coke Zero", "description": "330ml Can.", "price": 2.00, "image": "/menu/drinks/coke_zero.jpg" },
+    { "name": "Diet Coke", "description": "330ml Can.", "price": 2.00, "image": "/menu/drinks/diet_coke.jpg" },
+    { "name": "Tropicana", "description": "Tropicana 300ml Carton.", "price": 4.00, "image": "/menu/drinks/tropicana.jpg" },
+    { "name": "Evian Water", "description": "500ml Bottle.", "price": 1.80, "image": "/menu/drinks/evian_water.jpg" },
+    { "name": "Rubicon orange juice", "description": "2L Carton fresh orange Bottle.", "price": 5.50, "image": "/menu/drinks/rubicon_orange_juice.jpg" },
+    { "name": "Rubicon passion fruit", "description": "2L Carton fresh Passion Fruit Juice.", "price": 5.50, "image": "/menu/drinks/rubicon_passion_fruit.jpg" },
+    { "name": "San Pellegrino Lemon", "description": "330ml Can.", "price": 2.20, "image": "/menu/drinks/san_pellegrino_lemon.jpg" },
+    { "name": "San Pellegrino Orange", "description": "500 ml Bottle", "price": 2.20, "image": "/menu/drinks/san_pellegrino_orange.jpg" },
+    { "name": "Oceanspray Blueberry Juice", "description": "1l Carton fresh Juice.", "price": 4.50, "image": "/menu/drinks/oceanspray_blueberry_juice.jpg" },
+    { "name": "Coke", "description": "Coke can 330ml.", "price": 2.00, "image": "/menu/drinks/coke.jpg" },
+    { "name": "Tropicana Multivitamin", "description": "300ml multivitamin Carton.", "price": 4.00, "image": "/menu/drinks/tropicana_multivitamin.jpg" },
+    { "name": "Oceanspray Cranberry Juice", "description": "1l Carton fresh Juice.", "price": 4.50, "image": "/menu/drinks/oceanspray_cranberry_juice.jpg" },
+    { "name": "Vitacoco", "description": "Vitacoco 330ml Carton.", "price": 4.00, "image": "/menu/drinks/vitacoco.jpg" },
+    { "name": "Innocent orange juice", "description": "Innocent orange juice 1,35l Glass bottle.", "price": 7.50, "image": "/menu/drinks/innocent_orange_juice.jpg" },
+    { "name": "Innocent Apple Juice", "description": "Innocent apple juice 1,35l Glass Bottle.", "price": 7.50, "image": "/menu/drinks/innocent_apple_juice.jpg" }
+  ],
+  "Plate, cutlery and napkins": [
+    { "name": "Full Cutlery Set", "description": "Eco plates, forks, knives, napkins (Per Person).", "price": 1.50, "image": "/menu/essentials/full_cutlery_set.jpg" }
+  ]
+}

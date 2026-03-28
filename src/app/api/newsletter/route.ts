@@ -14,7 +14,7 @@ export async function POST(req: Request) {
 
     // 1. Notify YOU (The one you said is working)
     await resend.emails.send({
-      from: 'The Catering Co <info@karoldigital.co.uk>', 
+      from: 'The Office Lunch <info@karoldigital.co.uk>', 
       to: 'info@karoldigital.co.uk',
       subject: 'New Guestlist Signup',
       html: `<p>A new user has joined your guestlist: <strong>${email}</strong></p>`,

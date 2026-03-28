@@ -16,3 +16,33 @@ body {
   /* Prevents horizontal layout shifts during transitions */
   overflow-x: hidden;
 }
+/* 1. TARGET THE MAIN CONTAINER */
+#chat-widget-container {
+    left: 20px !important;
+    right: auto !important;
+}
+
+/* 2. TARGET THE BUBBLE AND WRAPPER */
+#chat-widget-container iframe,
+[class^="lc-bubble-"],
+[class^="lc-widget-"] {
+    left: 0 !important;
+    right: auto !important;
+}
+
+/* 3. TARGET THE MOBILE VERSION */
+.lc-mobile-widget-wrapper {
+    left: 10px !important;
+    right: auto !important;
+}
+
+/* This ensures the main container allows sticky children to work */
+main {
+  display: block;
+  overflow: visible !important;
+}
+
+/* If PageTransition is a div, it needs to allow overflow too */
+div[class*="PageTransition"] {
+  overflow: visible !important;
+}

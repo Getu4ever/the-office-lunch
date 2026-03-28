@@ -2,9 +2,15 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function PageTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+
+  // FORCE SCROLL TO TOP ON ROUTE CHANGE
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
   return (
     <AnimatePresence mode="wait">
@@ -17,6 +23,8 @@ export default function PageTransition({ children }: { children: React.ReactNode
           duration: 0.5, 
           ease: [0.22, 1, 0.36, 1] // Sleek cubic-bezier curve
         }}
+        // Ensures the container doesn't create layout jumps during transition
+        className="w-full"
       >
         {children}
       </motion.div>
