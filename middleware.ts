@@ -2,33 +2,28 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 /**
- * Next.js Middleware
- * Location: ./src/middleware.ts or ./middleware.ts
+ * Next.js Middleware - Optimized for Vercel NFT Tracing
+ * Location: ./src/middleware.ts
  */
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // 1. Explicitly allow public access to products for the menu
-  // This bypasses any further logic for this specific path
   if (pathname.startsWith('/api/admin/products')) {
     return NextResponse.next();
   }
 
-  // 2. Add other logic here (like protecting other /api/admin routes)
-  // For now, we allow the request to proceed
+  // 2. Default allow for all other routes
   return NextResponse.next();
 }
 
-// The Matcher defines exactly which paths trigger this middleware
+// POSITIVE MATCHER: We only run middleware on specific paths. 
+// This prevents the "middleware.js.nft.json" ENOENT error in Next.js 16.
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    '/api/admin/:path*', 
+    '/dashboard/:path*', 
+    '/admin/:path*'
   ],
 };
