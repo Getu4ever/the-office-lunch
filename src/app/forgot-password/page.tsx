@@ -1,65 +1,77 @@
-import { NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
-import User from "@/models/User";
-import { Resend } from 'resend';
+'use client';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { useState } from 'react';
+import toast from 'react-hot-toast';
+import { Mail, ArrowRight, Loader2 } from 'lucide-react';
+import Link from 'next/link';
 
-export async function POST(req: Request) {
-  try {
-    const { email } = await req.json();
+export default function ForgotPasswordPage() {
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
 
-    if (!email) {
-      return NextResponse.json({ message: "Email is required" }, { status: 400 });
-    }
-
-    await dbConnect();
-
-    // 1. Find user
-    const user = await User.findOne({ email });
-
-    // For security, if user doesn't exist, we still return "Success" 
-    // to prevent email harvesting. But we only send the email if they exist.
-    if (!user) {
-      return NextResponse.json({ message: "Reset code sent if account exists" }, { status: 200 });
-    }
-
-    // 2. Generate 6-digit reset code
-    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const resetExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes expiry
-
-    // 3. Save code to user record
-    user.resetPasswordCode = resetCode;
-    user.resetPasswordExpires = resetExpiry;
-    await user.save();
-
-    // 4. Send the email
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    
     try {
-      await resend.emails.send({
-        from: 'The Office Lunch <info@karoldigital.co.uk>',
-        to: email,
-        subject: 'Password Reset Code',
-        text: `Your password reset code is: ${resetCode}. It expires in 15 minutes.`,
-        html: `
-          <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 12px; max-width: 500px; margin: auto;">
-            <h2 style="color: #b32d3a; text-transform: uppercase;">Password Reset</h2>
-            <p>We received a request to reset your password. Use the code below to proceed:</p>
-            <div style="background: #f5f0e6; padding: 30px; text-align: center; border-radius: 12px; margin: 20px 0;">
-              <span style="font-size: 36px; font-weight: 900; letter-spacing: 8px; color: #1a1a1a;">${resetCode}</span>
-            </div>
-            <p style="font-size: 12px; color: #999; line-height: 1.5;">
-              This code is valid for 15 minutes. If you didn't request this, you can safely ignore this email.
-            </p>
-          </div>
-        `
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
       });
-    } catch (emailError) {
-      console.error("RESET_EMAIL_ERROR:", emailError);
-    }
 
-    return NextResponse.json({ message: "Reset code sent" }, { status: 200 });
-  } catch (error: any) {
-    console.error("FORGOT_PASSWORD_ERROR:", error);
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
-  }
+      if (res.ok) {
+        toast.success("Code sent! Please check your inbox.");
+      } else {
+        toast.error("Could not send code. Please try again.");
+      }
+    } catch (err) {
+      toast.error("An error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-stone-50 flex items-center justify-center p-6">
+      <div className="max-w-md w-full bg-white rounded-[2.5rem] p-10 shadow-sm border border-stone-100">
+        <div className="mb-8 text-center text-left">
+          <div className="w-16 h-16 bg-red-50 text-[#b32d3a] rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Mail size={32} />
+          </div>
+          <h1 className="text-2xl font-black uppercase tracking-tighter text-slate-900">Forgot Password?</h1>
+          <p className="text-stone-400 text-sm font-medium mt-2">Enter your email for a 6-digit reset code.</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2 text-left">
+            <label className="text-[10px] font-black uppercase tracking-widest text-stone-400 ml-4">Email Address</label>
+            <input 
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="your@email.com"
+              className="w-full p-5 bg-stone-50 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-[#b32d3a] transition-all"
+            />
+          </div>
+
+          <button 
+            type="submit"
+            disabled={loading}
+            className="w-full bg-[#b32d3a] text-white p-5 rounded-2xl font-black uppercase text-xs tracking-widest flex items-center justify-center gap-2 hover:bg-slate-900 transition-all disabled:opacity-50"
+          >
+            {loading ? <Loader2 className="animate-spin" size={18} /> : "Send Reset Code"}
+            {!loading && <ArrowRight size={18} />}
+          </button>
+        </form>
+
+        <div className="mt-8 text-center">
+          <Link href="/login" className="text-[10px] font-black uppercase tracking-widest text-stone-400 hover:text-[#b32d3a] transition-colors">
+            Back to Login
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
 }
