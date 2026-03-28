@@ -1,29 +1,37 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { auth } from "./auth";
+import { NextResponse } from "next/server";
 
-/**
- * Next.js Middleware - Optimized for Vercel NFT Tracing
- * Location: ./src/middleware.ts
- */
+export default auth((req) => {
+  const isAuth = !!req.auth;
+  const role = (req.auth?.user as any)?.role;
+  const { pathname } = req.nextUrl;
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const isAdminPage = pathname.startsWith("/admin");
+  const isDashboardPage = pathname.startsWith("/dashboard");
 
-  // 1. Explicitly allow public access to products for the menu
+  // 1. Public API Bypass: Allow public to fetch products for the menu
   if (pathname.startsWith('/api/admin/products')) {
     return NextResponse.next();
   }
 
-  // 2. Default allow for all other routes
-  return NextResponse.next();
-}
+  // 2. Auth Protection: Redirect to login if not authenticated
+  if (!isAuth && (isAdminPage || isDashboardPage)) {
+    return NextResponse.redirect(new URL("/login", req.nextUrl));
+  }
 
-// POSITIVE MATCHER: We only run middleware on specific paths. 
-// This prevents the "middleware.js.nft.json" ENOENT error in Next.js 16.
+  // 3. Admin Protection: Only allow admin/chef to admin pages
+  if (isAdminPage && role !== "admin" && role !== "chef") {
+    return NextResponse.redirect(new URL("/", req.nextUrl));
+  }
+
+  return NextResponse.next();
+});
+
+// The Matcher identifies which routes run this logic
 export const config = {
   matcher: [
-    '/api/admin/:path*', 
-    '/dashboard/:path*', 
-    '/admin/:path*'
+    "/admin/:path*", 
+    "/dashboard/:path*",
+    "/api/admin/:path*"
   ],
 };
