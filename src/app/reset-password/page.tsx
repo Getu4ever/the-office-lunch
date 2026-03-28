@@ -1,57 +1,79 @@
-import { NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
-import User from "@/models/User";
-import bcrypt from "bcryptjs";
+'use client';
 
-export async function POST(req: Request) {
-  try {
-    const { email, code, password } = await req.json();
+import { useState } from 'react';
+import toast from 'react-hot-toast';
+import { ShieldCheck, ArrowRight, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
-    if (!email || !code || !password) {
-      return NextResponse.json(
-        { message: "Missing required fields" },
-        { status: 400 }
-      );
+export default function ResetPasswordPage() {
+  const [email, setEmail] = useState('');
+  const [code, setCode] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.success("Password updated! Redirecting...");
+        setTimeout(() => router.push('/login'), 2000);
+      } else {
+        toast.error(data.message || "Invalid or expired code.");
+      }
+    } catch (err) {
+      toast.error("An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    await dbConnect();
+  return (
+    <div className="min-h-screen bg-stone-50 flex items-center justify-center p-6">
+      <div className="max-w-md w-full bg-white rounded-[2.5rem] p-10 shadow-sm border border-stone-100">
+        <div className="mb-8 text-center">
+          <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <ShieldCheck size={32} />
+          </div>
+          <h1 className="text-2xl font-black uppercase tracking-tighter text-slate-900 leading-tight">New Password</h1>
+          <p className="text-stone-400 text-sm font-medium mt-2">Enter your email, code, and new password.</p>
+        </div>
 
-    // 1. Find user with valid, non-expired reset code
-    const user = await User.findOne({
-      email,
-      resetPasswordCode: code,
-      resetPasswordExpires: { $gt: new Date() }, // Must be in the future
-    });
-
-    if (!user) {
-      return NextResponse.json(
-        { message: "Invalid or expired recovery code" },
-        { status: 400 }
-      );
-    }
-
-    // 2. Hash the new password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // 3. Update user and CLEAR the reset fields for security
-    user.password = hashedPassword;
-    user.resetPasswordCode = undefined;
-    user.resetPasswordExpires = undefined;
-    
-    // Also ensure they are marked as verified if they weren't before
-    user.isVerified = true;
-
-    await user.save();
-
-    return NextResponse.json(
-      { message: "Password updated successfully" }, 
-      { status: 200 }
-    );
-  } catch (error: any) {
-    console.error("RESET_PASSWORD_POST_ERROR:", error);
-    return NextResponse.json(
-      { message: "Internal server error" }, 
-      { status: 500 }
-    );
-  }
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input 
+            type="email" placeholder="Email Address" required
+            className="w-full p-5 bg-stone-50 border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-[#b32d3a]"
+            value={email} onChange={(e) => setEmail(e.target.value)}
+          />
+          <input 
+            type="text" placeholder="6-Digit Code" required maxLength={6}
+            className="w-full p-5 bg-stone-50 border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-[#b32d3a]"
+            value={code} onChange={(e) => setCode(e.target.value)}
+          />
+          <input 
+            type="password" placeholder="New Password" required
+            className="w-full p-5 bg-stone-50 border-none rounded-2xl text-sm font-bold outline-none focus:ring-2 focus:ring-[#b32d3a]"
+            value={password} onChange={(e) => setPassword(e.target.value)}
+          />
+          <button 
+            disabled={loading}
+            className="w-full bg-[#b32d3a] text-white p-5 rounded-2xl font-black uppercase text-xs tracking-widest flex items-center justify-center gap-2 hover:bg-slate-900 transition-all disabled:opacity-50"
+          >
+            {loading ? <Loader2 className="animate-spin" size={18} /> : "Update Password"}
+            {!loading && <ArrowRight size={18} />}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
 }
