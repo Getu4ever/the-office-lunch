@@ -12,9 +12,17 @@ import AdminDashboardView from "@/components/dashboard/AdminDashboardView";
 import CustomerDashboardView from "@/components/dashboard/CustomerDashboardView";
 
 /**
- * DASHBOARD PAGE
- * Priority Header with dynamic "ADMINISTRATOR" text and editable profile image.
+ * EXPORTED INTERFACE FOR TYPESCRIPT
+ * This fix allows DashboardAddresses.tsx to compile correctly.
  */
+export interface Address {
+  _id: string;
+  type: string;
+  street: string;
+  city: string;
+  postcode: string;
+  isDefault: boolean;
+}
 
 export default function DashboardPage() {
   const { data: session, status, update } = useSession();
@@ -48,7 +56,6 @@ export default function DashboardPage() {
       const newImageUrl = result.info.secure_url;
       
       try {
-        // This matches the PATCH route logic you provided
         const res = await fetch('/api/user/update-profile', { 
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
@@ -57,7 +64,6 @@ export default function DashboardPage() {
 
         if (res.ok) {
           setUserData((prev: any) => ({ ...prev, image: newImageUrl }));
-          // Update the NextAuth session so the UI stays in sync globally
           await update({ image: newImageUrl });
           toast.success("PROFILE IMAGE UPDATED");
         } else {
@@ -78,7 +84,6 @@ export default function DashboardPage() {
         
         {/* PRIORITY HEADER */}
         <div className="bg-white rounded-[3rem] p-8 md:p-10 shadow-sm border border-stone-200 mb-8 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
-          {/* Decorative background shield */}
           <div className="absolute top-0 right-0 p-12 opacity-[0.03] pointer-events-none">
             <Shield size={200} />
           </div>
@@ -100,7 +105,6 @@ export default function DashboardPage() {
                     <UserIcon className="text-stone-300" size={40} />
                   </div>
                 )}
-                {/* Hover Camera Overlay */}
                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <Camera className="text-white" size={24} />
                 </div>
@@ -114,7 +118,6 @@ export default function DashboardPage() {
               {session?.user?.name}
             </h1>
             
-            {/* UPDATED ROLE BADGE */}
             <div className="inline-flex items-center gap-2 bg-slate-900 text-white px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest">
               <Shield size={12} className="text-[#b32d3a]" />
               {session?.user?.role === 'admin' ? 'ADMINISTRATOR' : 'CUSTOMER'}
@@ -122,7 +125,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* View Selection */}
         {session?.user?.role === 'admin' ? (
           <AdminDashboardView userData={userData} orders={orders} />
         ) : (
