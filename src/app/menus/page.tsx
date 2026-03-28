@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react'; // Added Suspense
 import { useSearchParams } from 'next/navigation';
 import { 
   Clock, 
@@ -23,7 +23,8 @@ import { useCart } from '@/context/CartContext';
 import DeliveryScheduler from '@/components/DeliveryScheduler';
 import toast from 'react-hot-toast';
 
-export default function MenuPage() {
+// 1. All your original logic moves here
+function MenuContent() {
   const { addToCart, deliverySlot } = useCart();
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get('category');
@@ -34,14 +35,13 @@ export default function MenuPage() {
   const [dbProducts, setDbProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Mapping IDs to labels for the UI and the URL search params
   const menuCategories = [
     { id: 'Sandwich Platters', label: 'Sandwich Platters', icon: <Users className="w-4 h-4" /> },
     { id: 'Wrap Platters', label: 'Wrap Platters', icon: <LayoutGrid className="w-4 h-4" /> },
-    { id: 'Platters', label: 'All Platters', icon: <Users className="w-4 h-4" />, hidden: true }, // URL Sync helper
+    { id: 'Platters', label: 'All Platters', icon: <Users className="w-4 h-4" />, hidden: true },
     { id: 'Individual Sandwiches', label: 'Individual Sandwiches', icon: <ShoppingBag className="w-4 h-4" /> },
     { id: 'Individual Boxes', label: 'Individual Boxes', icon: <Box className="w-4 h-4" /> },
-    { id: 'Lunch Boxes', label: 'Lunch Boxes', icon: <Box className="w-4 h-4" />, hidden: true }, // URL Sync helper
+    { id: 'Lunch Boxes', label: 'Lunch Boxes', icon: <Box className="w-4 h-4" />, hidden: true },
     { id: 'Salad', label: 'Salads & Sides', icon: <Leaf className="w-4 h-4" /> },
     { id: 'Breakfast Menu', label: 'Breakfast Menu', icon: <Coffee className="w-4 h-4" /> },
     { id: 'Deserts', label: 'Desserts', icon: <Cookie className="w-4 h-4" /> },
@@ -67,10 +67,8 @@ export default function MenuPage() {
     fetchLiveMenu();
   }, []);
 
-  // Sync the active tab with the Home Page links
   useEffect(() => {
     if (categoryParam) {
-      // Map 'Lunch Boxes' URL param to 'Individual Boxes' DB category if needed
       let targetId = categoryParam;
       if (categoryParam === 'Lunch Boxes') targetId = 'Individual Boxes';
       if (categoryParam === 'Platters') targetId = 'Sandwich Platters';
@@ -130,7 +128,6 @@ export default function MenuPage() {
         }
       `}</style>
 
-      {/* SYNCED: Sticky Wrapper maintains consistency with Home Page layout */}
       <div className="sticky top-[80px] z-[100] transition-all duration-300">
         <DeliveryScheduler />
       </div>
@@ -254,5 +251,18 @@ export default function MenuPage() {
         )}
       </section>
     </main>
+  );
+}
+
+// 2. The Exported Page Component (Satisfies Vercel build)
+export default function MenuPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-[#b32d3a] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }>
+      <MenuContent />
+    </Suspense>
   );
 }
