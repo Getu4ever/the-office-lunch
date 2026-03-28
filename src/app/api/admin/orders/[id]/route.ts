@@ -1,22 +1,25 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Order from '@/models/Order';
 import { auth } from "@/auth";
 
 /**
  * FILE: api/admin/orders/[id]/route.ts
- * Logic: Updates the order status for the professional tracker.
+ * Logic: Updates the order status with Next.js 16 Promise-based params support.
  */
 
 export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  // Next.js 16 requirement: context.params is a Promise
+  context: { params: Promise<{ id: string }> } 
 ) {
   try {
-    // 1. Security Check
+    // 1. Await params to get the ID (CRITICAL FIX)
+    const { id } = await context.params;
+
+    // 2. Security Check
     const session = await auth();
     
-    // session.user.role check ensures only admins can move the tracker
     if (!session || (session.user as any).role !== 'admin') {
       return NextResponse.json(
         { error: "Unauthorized Access" }, 
@@ -24,11 +27,9 @@ export async function PATCH(
       );
     }
 
-    const { id } = params;
     const body = await request.json();
     
-    // Normalize status to lowercase to match OrderTracker expectations
-    // e.g., "Preparing" becomes "preparing"
+    // Normalize status (e.g., "Preparing" -> "preparing")
     const status = body.status?.toLowerCase().replace(/\s+/g, '-');
 
     if (!status) {
@@ -40,7 +41,7 @@ export async function PATCH(
 
     await dbConnect();
 
-    // 2. Update the Order
+    // 3. Update the Order
     const updatedOrder = await Order.findByIdAndUpdate(
       id,
       { 
@@ -57,7 +58,7 @@ export async function PATCH(
       );
     }
 
-    // 3. Return success
+    // 4. Return success
     return NextResponse.json({
       success: true,
       message: `Order ${id} updated to ${status}`,
