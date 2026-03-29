@@ -148,7 +148,7 @@ export default function CustomerDashboardView({ userData: initialUserData, order
       </div>
 
       <div className="grid lg:grid-cols-[280px_1fr] gap-8">
-        {/* SIDEBAR - Desktop */}
+        {/* SIDEBAR - Desktop Only */}
         <aside className="hidden lg:block space-y-3">
           <div className="flex flex-col items-center mb-8 pt-4 text-center">
             <div className="relative w-24 h-24 rounded-full border-4 border-white shadow-lg overflow-hidden bg-stone-100 flex items-center justify-center mb-3">
@@ -168,21 +168,21 @@ export default function CustomerDashboardView({ userData: initialUserData, order
           })}
         </aside>
 
-        {/* MOBILE DASHBOARD TABS - Restored Sleek Style, wrapped into lines */}
-        <div className="lg:hidden flex flex-wrap gap-2 mb-2">
+        {/* MOBILE DASHBOARD TABS - FIXED: Vertical Stack */}
+        <div className="lg:hidden flex flex-col gap-2 mb-2">
           {tabs.map((tab) => {
             if (isGuest && tab.hideGuest) return null;
             return (
               <button 
                 key={tab.id} 
                 onClick={() => setActiveTab(tab.id)} 
-                className={`flex-grow flex items-center justify-center gap-2 px-5 py-4 rounded-[1.5rem] font-black uppercase text-[10px] tracking-widest transition-all border ${
+                className={`w-full flex items-center justify-center gap-3 px-5 py-4 rounded-[1.5rem] font-black uppercase text-[10px] tracking-widest transition-all border ${
                   activeTab === tab.id 
                     ? 'bg-[#b32d3a] text-white border-[#b32d3a] shadow-lg' 
                     : 'bg-white text-slate-500 border-stone-200'
                 }`}
               >
-                <tab.icon size={14} /> {tab.label}
+                <tab.icon size={16} /> {tab.label}
               </button>
             )
           })}
@@ -206,13 +206,13 @@ export default function CustomerDashboardView({ userData: initialUserData, order
                 <div className="h-[1px] w-8 bg-[#b32d3a]"></div>
               </div>
               
-              {/* MENU CATEGORY TABS - Restored Professional Style, No scroll */}
-              <div className="flex flex-wrap justify-center gap-2 mb-10">
+              {/* MENU CATEGORY TABS - FIXED: Vertical Stack on Mobile */}
+              <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-2 mb-10">
                 {menuCategories.map((cat) => (
                   <button
                     key={cat.id}
                     onClick={() => setMenuTab(cat.id)}
-                    className={`flex items-center gap-2 px-4 py-3 rounded-2xl font-black uppercase tracking-widest text-[9px] transition-all border-2 ${
+                    className={`flex items-center justify-center gap-2 px-4 py-3 rounded-2xl font-black uppercase tracking-widest text-[9px] transition-all border-2 ${
                       menuTab === cat.id 
                         ? 'bg-[#b32d3a] border-[#b32d3a] text-white shadow-lg' 
                         : 'bg-white border-slate-100 text-slate-800 hover:border-slate-300'
@@ -249,16 +249,15 @@ export default function CustomerDashboardView({ userData: initialUserData, order
             </div>
           )}
 
-          {/* ... Addresses, Orders, Security Tabs ... */}
           {activeTab === 'addresses' && !isGuest && (
-            <div className="p-10 text-left">
+            <div className="p-6 md:p-10 text-left">
               <div className="flex justify-between items-center mb-10">
-                <h2 className="text-3xl font-black uppercase tracking-tight">Saved <span className="text-[#b32d3a]">Addresses</span></h2>
+                <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight">Saved <span className="text-[#b32d3a]">Addresses</span></h2>
                 <AddAddressModal onAddressAdded={handleAddressUpdate} editData={editingAddress} onClose={() => setEditingAddress(null)} />
               </div>
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {userData?.addresses?.map((addr: any) => (
-                  <div key={addr._id} onClick={() => handleSetDefault(addr._id)} className={`group cursor-pointer p-8 rounded-[2.5rem] border flex flex-col transition-all ${addr.isDefault ? 'bg-white border-[#b32d3a] shadow-xl ring-1 ring-[#b32d3a]/10' : 'bg-slate-50 border-stone-100 hover:border-slate-300'}`}>
+                  <div key={addr._id} onClick={() => handleSetDefault(addr._id)} className={`group cursor-pointer p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border flex flex-col transition-all ${addr.isDefault ? 'bg-white border-[#b32d3a] shadow-xl ring-1 ring-[#b32d3a]/10' : 'bg-slate-50 border-stone-100 hover:border-slate-300'}`}>
                     <div className="flex justify-between items-start mb-4">
                       <p className="font-black uppercase text-[9px] text-[#b32d3a] tracking-widest">{addr.label}</p>
                       <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
@@ -280,8 +279,8 @@ export default function CustomerDashboardView({ userData: initialUserData, order
           )}
 
           {activeTab === 'orders' && !isGuest && (
-            <div className="p-10 text-left">
-              <h2 className="text-3xl font-black uppercase tracking-tight mb-10">Order <span className="text-[#b32d3a]">History</span></h2>
+            <div className="p-6 md:p-10 text-left">
+              <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight mb-10">Order <span className="text-[#b32d3a]">History</span></h2>
               <div className="space-y-4">
                 {orders?.map((o: any) => <OrderRow key={o._id} order={o} />)}
               </div>
@@ -289,12 +288,12 @@ export default function CustomerDashboardView({ userData: initialUserData, order
           )}
 
           {activeTab === 'settings' && !isGuest && (
-             <div className="p-10 text-left">
-               <h2 className="text-3xl font-black uppercase tracking-tight mb-8">Security <span className="text-[#b32d3a]">Settings</span></h2>
+             <div className="p-6 md:p-10 text-left">
+               <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight mb-8">Security <span className="text-[#b32d3a]">Settings</span></h2>
                <form onSubmit={handlePasswordChange} className="max-w-xl space-y-6">
-                 <input type="password" placeholder="Current Password" value={passwordData.currentPassword} onChange={(e) => setPasswordData({...passwordData, currentPassword: e.target.value})} className="w-full bg-slate-50 border border-stone-100 px-8 py-5 rounded-[2rem] text-sm focus:border-[#b32d3a]/30 outline-none" required />
-                 <input type="password" placeholder="New Password" value={passwordData.newPassword} onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})} className="w-full bg-slate-50 border border-stone-100 px-8 py-5 rounded-[2rem] text-sm focus:border-[#b32d3a]/30 outline-none" required />
-                 <button type="submit" className="w-full bg-slate-900 text-white py-6 rounded-[2rem] font-black uppercase text-[11px] tracking-[0.3em] hover:bg-[#b32d3a] transition-all shadow-xl">Update Credentials</button>
+                 <input type="password" placeholder="Current Password" value={passwordData.currentPassword} onChange={(e) => setPasswordData({...passwordData, currentPassword: e.target.value})} className="w-full bg-slate-50 border border-stone-100 px-6 py-4 rounded-[1.5rem] md:rounded-[2rem] text-sm focus:border-[#b32d3a]/30 outline-none" required />
+                 <input type="password" placeholder="New Password" value={passwordData.newPassword} onChange={(e) => setPasswordData({...passwordData, newPassword: e.target.value})} className="w-full bg-slate-50 border border-stone-100 px-6 py-4 rounded-[1.5rem] md:rounded-[2rem] text-sm focus:border-[#b32d3a]/30 outline-none" required />
+                 <button type="submit" className="w-full bg-slate-900 text-white py-6 rounded-[1.5rem] md:rounded-[2rem] font-black uppercase text-[11px] tracking-[0.3em] hover:bg-[#b32d3a] transition-all shadow-xl">Update Credentials</button>
                </form>
              </div>
           )}

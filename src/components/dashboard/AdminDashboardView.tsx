@@ -215,7 +215,6 @@ export default function AdminDashboardView({ userData: initialUserData }: any) {
     <div className="flex flex-col lg:grid lg:grid-cols-[280px_1fr] gap-8">
       {/* MOBILE HEADER / DESKTOP SIDEBAR */}
       <aside className="lg:space-y-3">
-        {/* Profile Card - Updated to show on both Mobile and Desktop */}
         <div className="flex flex-col items-center mb-8 pt-4 text-center px-4">
           <div className="relative w-24 h-24 rounded-full border-4 border-white shadow-lg overflow-hidden bg-stone-100 flex items-center justify-center mb-3 mx-auto">
             {userData?.image ? (
@@ -228,15 +227,15 @@ export default function AdminDashboardView({ userData: initialUserData }: any) {
           <p className="font-black text-slate-900 text-xs uppercase mt-1 truncate w-full">{userData?.name}</p>
         </div>
 
-        {/* TAB NAVIGATION - Mobile Horizontal / Desktop Vertical */}
-        <div className="flex lg:flex-col overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 gap-3 px-2 lg:px-0 no-scrollbar">
+        {/* TAB NAVIGATION - FIXED: Vertical Stack on Mobile */}
+        <div className="flex flex-col gap-3 px-2 lg:px-0">
           {tabs.map((tab) => (
             <button 
               key={tab.id} 
               onClick={() => { setActiveTab(tab.id); setIsAddingProduct(false); }} 
-              className={`flex-shrink-0 lg:w-full flex items-center justify-between px-6 lg:px-8 py-4 lg:py-5 rounded-[2rem] font-black uppercase text-[10px] lg:text-[11px] tracking-[0.1em] lg:tracking-[0.2em] transition-all ${
+              className={`w-full flex items-center justify-between px-6 lg:px-8 py-4 lg:py-5 rounded-[1.5rem] md:rounded-[2rem] font-black uppercase text-[10px] lg:text-[11px] tracking-[0.1em] lg:tracking-[0.2em] transition-all ${
                 activeTab === tab.id 
-                  ? 'bg-[#b32d3a] text-white shadow-xl lg:translate-x-3' 
+                  ? 'bg-[#b32d3a] text-white shadow-xl lg:translate-x-3 border-[#b32d3a]' 
                   : 'bg-white text-slate-500 border border-stone-200 hover:border-[#b32d3a]/30'
               }`}
             >
@@ -247,7 +246,7 @@ export default function AdminDashboardView({ userData: initialUserData }: any) {
               <ChevronRight size={14} className={`hidden lg:block ${activeTab === tab.id ? 'opacity-100' : 'opacity-0'}`} />
             </button>
           ))}
-          <button onClick={() => signOut()} className="flex-shrink-0 lg:w-full flex items-center gap-4 px-6 lg:px-8 py-4 lg:py-5 text-slate-400 font-black uppercase text-[10px] lg:text-[11px] hover:text-rose-500 transition-colors whitespace-nowrap">
+          <button onClick={() => signOut()} className="w-full flex items-center gap-4 px-6 lg:px-8 py-4 lg:py-5 text-slate-400 font-black uppercase text-[10px] lg:text-[11px] hover:text-rose-500 transition-colors">
             <LogOut size={16} /> Sign Out
           </button>
         </div>
@@ -281,9 +280,10 @@ export default function AdminDashboardView({ userData: initialUserData }: any) {
               </div>
             </div>
 
-            <div className="mb-8 overflow-x-auto no-scrollbar flex gap-2 pb-2">
+            {/* FIXED: Categories Vertical Stack on Mobile */}
+            <div className="mb-8 flex flex-col sm:flex-row flex-wrap gap-2">
               {categories.map((cat) => (
-                <button key={cat} onClick={() => setActiveMenuCategory(cat)} className={`flex-shrink-0 px-4 py-2.5 rounded-xl font-black uppercase text-[8px] tracking-wider transition-all border ${activeMenuCategory === cat ? 'bg-[#b32d3a] text-white border-transparent shadow-lg' : 'bg-white text-slate-500 border-stone-200'}`}>
+                <button key={cat} onClick={() => setActiveMenuCategory(cat)} className={`px-4 py-2.5 rounded-xl font-black uppercase text-[8px] tracking-wider transition-all border ${activeMenuCategory === cat ? 'bg-[#b32d3a] text-white border-transparent shadow-lg' : 'bg-white text-slate-500 border-stone-200'}`}>
                   {cat}
                 </button>
               ))}
@@ -413,12 +413,6 @@ export default function AdminDashboardView({ userData: initialUserData }: any) {
           </div>
         )}
       </main>
-
-      {/* NO-SCROLLBAR STYLE COMPONENT */}
-      <style jsx global>{`
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
     </div>
   );
 }
