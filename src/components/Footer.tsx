@@ -58,7 +58,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/login" className="hover:text-[#b32d3a] transition-colors flex items-center gap-2 group">
-                  Log In <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                  Log In/Register <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
                 </Link>
               </li>
             </ul>
