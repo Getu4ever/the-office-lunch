@@ -3,12 +3,11 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import AuthProvider from "@/components/AuthProvider";
-import Cart from "@/components/Cart";
 import Navbar from '@/components/Navbar';
 import Footer from "@/components/Footer";
-import StickyBasket from "@/components/StickyBasket";
 import PageTransition from '@/components/PageTransition';
 import LiveChat from "@/components/LiveChat";
+import ShoppingControls from "@/components/ShoppingControls"; // The New Gatekeeper
 import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
@@ -42,7 +41,7 @@ export default function RootLayout({
         }}
         suppressHydrationWarning={true}
       >
-        {/* Place LiveChat first so it loads independently of transitions */}
+        {/* LiveChat is outside the wrapper, so it shows for Admins too */}
         <LiveChat />
 
         <AuthProvider>
@@ -80,8 +79,9 @@ export default function RootLayout({
 
             <Footer />
             
-            <Cart />
-            <StickyBasket />
+            {/* This component handles the Admin check safely */}
+            <ShoppingControls />
+
           </CartProvider>
         </AuthProvider>
       </body>
