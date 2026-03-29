@@ -85,7 +85,7 @@ export default function Navbar() {
             </div>
           </div>
           
-          {/* DESKTOP LINKS - Reverted to xl:flex to prevent two-line wrapping */}
+          {/* DESKTOP LINKS - xl:flex prevents the two-line messy wrap */}
           <div className={`hidden xl:flex items-center gap-6 xl:gap-8 text-[11px] xl:text-[12px] font-black uppercase tracking-[0.2em] transition-colors duration-300 ${
             scrolled ? 'text-slate-900' : 'text-white'
           }`}>
@@ -113,6 +113,7 @@ export default function Navbar() {
                 Kitchen
               </Link>
             )}
+
             <div 
               onClick={() => setOpenCart(true)} 
               className={`relative cursor-pointer group px-1 md:px-2 transition-colors ${scrolled ? 'text-slate-900' : 'text-white'}`}
@@ -123,12 +124,12 @@ export default function Navbar() {
               </span>
             </div>
 
-            {/* ACTION BUTTONS - Restored to lg:flex */}
+            {/* ACTION BUTTONS - lg:flex ensures these show up on your laptop */}
             <div className="hidden lg:flex items-center gap-3">
               {isAdmin ? (
                 <Link href="/dashboard" className="group flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-full font-black text-[11px] uppercase tracking-widest transition-all hover:bg-slate-800 shadow-lg active:scale-95">
                   <LayoutDashboard className="w-3.5 h-3.5 text-indigo-400" />
-                  Dashboard
+                  Admin Dashboard
                 </Link>
               ) : (
                 <>
@@ -142,17 +143,17 @@ export default function Navbar() {
                       className="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-3 py-1.5 rounded-full font-black text-[9px] uppercase tracking-widest transition-all shadow-md hover:scale-105"
                     >
                       <LayoutDashboard className="w-3 h-3 text-indigo-400" />
-                      Account
+                      My Dashboard
                     </Link>
                   )}
                 </>
               )}
             </div>
 
-            {/* MOBILE TRIGGER - Adjusted to lg:hidden */}
+            {/* MOBILE TRIGGER - xl:hidden ensures hamburger appears on laptop widths */}
             <button 
               onClick={() => setIsOpen(!isOpen)} 
-              className={`lg:hidden p-2 rounded-xl transition-all ${scrolled ? 'bg-slate-900 text-white' : 'bg-white/20 text-white'}`}
+              className={`xl:hidden p-2 rounded-xl transition-all ${scrolled ? 'bg-slate-900 text-white' : 'bg-white/20 text-white'}`}
             >
               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -161,7 +162,7 @@ export default function Navbar() {
       </nav>
 
       {/* 3. MOBILE MENU */}
-      <div className={`fixed inset-0 bg-[#0f172a] transition-all duration-500 z-[110] lg:hidden ${
+      <div className={`fixed inset-0 bg-[#0f172a] transition-all duration-500 z-[110] xl:hidden ${
         isOpen ? 'opacity-100 visible pointer-events-auto' : 'opacity-0 invisible pointer-events-none'
       }`}>
         <div className="relative h-full flex flex-col px-10 pt-32 pb-12">
