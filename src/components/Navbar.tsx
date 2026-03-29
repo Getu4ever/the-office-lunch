@@ -85,8 +85,8 @@ export default function Navbar() {
             </div>
           </div>
           
-          {/* DESKTOP LINKS - Restored to lg:flex */}
-          <div className={`hidden lg:flex items-center gap-6 xl:gap-8 text-[11px] xl:text-[12px] font-black uppercase tracking-[0.2em] transition-colors duration-300 ${
+          {/* DESKTOP LINKS - Reverted to xl:flex to prevent two-line wrapping */}
+          <div className={`hidden xl:flex items-center gap-6 xl:gap-8 text-[11px] xl:text-[12px] font-black uppercase tracking-[0.2em] transition-colors duration-300 ${
             scrolled ? 'text-slate-900' : 'text-white'
           }`}>
             <Link href="/" className="hover:text-[#b32d3a]">Home</Link>
@@ -113,7 +113,6 @@ export default function Navbar() {
                 Kitchen
               </Link>
             )}
-
             <div 
               onClick={() => setOpenCart(true)} 
               className={`relative cursor-pointer group px-1 md:px-2 transition-colors ${scrolled ? 'text-slate-900' : 'text-white'}`}
