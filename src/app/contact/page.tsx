@@ -64,7 +64,7 @@ export default function ContactPage() {
                 <div className="flex items-center gap-3 text-slate-900 font-black uppercase tracking-widest text-[10px]">
                   <MessageSquare className="w-4 h-4 text-[#b32d3a]" /> General Inquiry
                 </div>
-                <p className="text-slate-500 font-bold">hello@officelunch.co.uk</p>
+                <p className="text-slate-500 font-bold">orders@sandwichplatterdelivery.co.uk</p>
               </div>
 
               <div className="space-y-4">
