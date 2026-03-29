@@ -7,7 +7,8 @@ import Navbar from '@/components/Navbar';
 import Footer from "@/components/Footer";
 import PageTransition from '@/components/PageTransition';
 import LiveChat from "@/components/LiveChat";
-import ShoppingControls from "@/components/ShoppingControls"; // The New Gatekeeper
+import Cart from "@/components/Cart"; 
+import StickyBasket from "@/components/StickyBasket"; 
 import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
@@ -41,7 +42,6 @@ export default function RootLayout({
         }}
         suppressHydrationWarning={true}
       >
-        {/* LiveChat is outside the wrapper, so it shows for Admins too */}
         <LiveChat />
 
         <AuthProvider>
@@ -79,8 +79,9 @@ export default function RootLayout({
 
             <Footer />
             
-            {/* This component handles the Admin check safely */}
-            <ShoppingControls />
+            {/* These are now here for everyone, Admin included */}
+            <Cart />
+            <StickyBasket />
 
           </CartProvider>
         </AuthProvider>

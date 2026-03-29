@@ -17,7 +17,6 @@ import { useCart } from '@/context/CartContext';
 import OrderTracker from '@/components/dashboard/OrderTracker';
 import toast from 'react-hot-toast';
 
-// 1. IMPORT PDF LIBRARIES
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -34,12 +33,9 @@ export default function OrderRow({ order }: { order: any }) {
 
   const itemsSummary = order.items?.map((i: any) => `${i.quantity}x ${i.name}`).join(', ') || 'Processing items...';
 
-  // FIXED: REPEAT ORDER LOGIC
-  // Instead of pushing to a 404 /checkout page, we hit the checkout API directly.
   const handleReorder = async () => {
     setIsReordering(true);
     try {
-      // 1. Sync the local cart state first
       if (clearCart) clearCart();
 
       order.items.forEach((item: any) => {
@@ -52,7 +48,6 @@ export default function OrderRow({ order }: { order: any }) {
         });
       });
 
-      // 2. Direct API Checkout Call (Same logic as your Cart component)
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -69,7 +64,6 @@ export default function OrderRow({ order }: { order: any }) {
 
       const data = await response.json();
 
-      // 3. Redirect to Stripe/Payment URL instead of local route
       if (data.url) {
         window.location.href = data.url;
       } else {
@@ -82,7 +76,6 @@ export default function OrderRow({ order }: { order: any }) {
     }
   };
 
-  // 2. FRONTEND PDF GENERATION
   const handleDownloadReceipt = () => {
     try {
       const doc = new jsPDF();
@@ -128,7 +121,6 @@ export default function OrderRow({ order }: { order: any }) {
     }
   };
 
-  // 3. SHARE EXPENSE
   const handleShareExpense = async (e: React.MouseEvent) => {
     e.stopPropagation();
     const orderNum = (order.orderId || order._id).slice(-6).toUpperCase();
@@ -150,14 +142,14 @@ export default function OrderRow({ order }: { order: any }) {
       <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={() => setIsOpen(false)} />
       
       <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300 text-left">
-        <div className="flex-1 overflow-y-auto p-8">
+        <div className="flex-1 overflow-y-auto p-6 md:p-8">
           <button onClick={() => setIsOpen(false)} className="mb-8 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900">
             ← Close Summary
           </button>
 
           <div className="flex justify-between items-start mb-6">
             <div>
-              <h2 className="text-3xl font-black uppercase text-slate-900 leading-none">Order Details</h2>
+              <h2 className="text-2xl md:text-3xl font-black uppercase text-slate-900 leading-none">Order Details</h2>
               <p className="text-[#b32d3a] font-bold text-[10px] break-all uppercase mt-3 tracking-tighter">ID: {order.orderId || order._id}</p>
             </div>
           </div>
@@ -177,12 +169,12 @@ export default function OrderRow({ order }: { order: any }) {
 
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4 text-left">
-                <div className="p-5 bg-stone-50 rounded-3xl border border-stone-100">
+                <div className="p-4 md:p-5 bg-stone-50 rounded-3xl border border-stone-100">
                   <Calendar className="text-[#b32d3a] w-4 h-4 mb-2" />
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-tight">Delivery Date</p>
                   <p className="font-bold text-slate-900 text-xs">{order.eventDate}</p>
                 </div>
-                <div className="p-5 bg-stone-50 rounded-3xl border border-stone-100">
+                <div className="p-4 md:p-5 bg-stone-50 rounded-3xl border border-stone-100">
                   <MapPin className="text-[#b32d3a] w-4 h-4 mb-2" />
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-tight">Time Slot</p>
                   <p className="font-bold text-slate-900 text-xs">{order.deliverySlot}</p>
@@ -196,16 +188,16 @@ export default function OrderRow({ order }: { order: any }) {
               <div className="space-y-5">
                 {order.items?.map((item: any, idx: number) => (
                   <div key={idx} className="flex justify-between items-center text-left">
-                    <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-2xl overflow-hidden border border-stone-100 bg-stone-50 flex-shrink-0">
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl overflow-hidden border border-stone-100 bg-stone-50 flex-shrink-0">
                         <img src={item.image || 'https://placehold.co/400x400'} className="w-full h-full object-cover" alt={item.name} />
                       </div>
-                      <div>
-                        <p className="font-bold text-slate-900 text-xs leading-tight">{item.name}</p>
+                      <div className="min-w-0">
+                        <p className="font-bold text-slate-900 text-xs leading-tight truncate">{item.name}</p>
                         <p className="text-[9px] font-black text-[#b32d3a] uppercase mt-1">Qty: {item.quantity} × £{item.price.toFixed(2)}</p>
                       </div>
                     </div>
-                    <p className="font-black text-slate-900 text-sm">£{(item.quantity * item.price).toFixed(2)}</p>
+                    <p className="font-black text-slate-900 text-sm shrink-0">£{(item.quantity * item.price).toFixed(2)}</p>
                   </div>
                 ))}
               </div>
@@ -213,11 +205,11 @@ export default function OrderRow({ order }: { order: any }) {
           </div>
         </div>
 
-        <div className="p-8 bg-white border-t border-stone-100 text-left">
+        <div className="p-6 md:p-8 bg-white border-t border-stone-100 text-left">
           <div className="flex justify-between items-end mb-8 px-2">
             <div>
               <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Total Paid</p>
-              <span className="text-3xl font-black text-slate-900">£{order.total.toFixed(2)}</span>
+              <span className="text-2xl md:text-3xl font-black text-slate-900">£{order.total.toFixed(2)}</span>
             </div>
           </div>
           
@@ -238,26 +230,43 @@ export default function OrderRow({ order }: { order: any }) {
 
   return (
     <>
-      <div onClick={() => setIsOpen(true)} className="grid grid-cols-[0.8fr_1fr_2fr_0.8fr_0.8fr_auto] items-center p-6 border-b border-stone-100 hover:bg-stone-50 transition-all cursor-pointer bg-white group">
-        <div className="font-bold text-slate-900 text-[10px] uppercase tracking-tight text-left">
-          <span className="text-slate-300 mr-1">#</span>
-          {(order.orderId || order._id).slice(-6).toUpperCase()}
+      {/* FIXED: Removed horizontal grid on mobile, using a flex-column stack that expands to grid on desktop */}
+      <div 
+        onClick={() => setIsOpen(true)} 
+        className="flex flex-col md:grid md:grid-cols-[0.8fr_1fr_2fr_0.8fr_0.8fr_auto] gap-3 md:gap-0 md:items-center p-5 md:p-6 border-b border-stone-100 hover:bg-stone-50 transition-all cursor-pointer bg-white group"
+      >
+        <div className="flex justify-between items-center md:block">
+           <div className="font-bold text-slate-900 text-[10px] uppercase tracking-tight text-left">
+            <span className="text-slate-300 mr-1">#</span>
+            {(order.orderId || order._id).slice(-6).toUpperCase()}
+          </div>
+          <div className="md:hidden">
+             <span className={`px-3 py-1 rounded-full font-black uppercase text-[8px] tracking-widest ${order.status === 'delivered' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
+              {order.status || 'pending'}
+             </span>
+          </div>
         </div>
+
         <div className="text-slate-400 font-bold text-[10px] uppercase text-left">
           {order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'Today'}
         </div>
-        <div className="text-left px-4">
-           <p className="text-[10px] font-black text-[#b32d3a] uppercase truncate bg-stone-100/50 px-3 py-1 rounded-full border border-stone-100 max-w-[200px]">
+
+        <div className="text-left md:px-4">
+           <p className="text-[10px] font-black text-[#b32d3a] uppercase truncate bg-stone-100/50 px-3 py-1 rounded-full border border-stone-100 w-fit max-w-full md:max-w-[200px]">
              {itemsSummary}
            </p>
         </div>
-        <div className="text-left">
+
+        <div className="hidden md:block text-left">
            <span className={`px-3 py-1 rounded-full font-black uppercase text-[8px] tracking-widest ${order.status === 'delivered' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
             {order.status || 'pending'}
            </span>
         </div>
-        <div className="font-black text-slate-900 text-sm text-right pr-4">£{order.total.toFixed(2)}</div>
-        <div className=""><ChevronRight className="w-5 h-4 text-slate-300 group-hover:text-[#b32d3a] transition-all" /></div>
+
+        <div className="flex justify-between items-center md:block">
+          <div className="font-black text-slate-900 text-sm md:text-right md:pr-4">£{order.total.toFixed(2)}</div>
+          <div className="md:block"><ChevronRight className="w-5 h-4 text-slate-300 group-hover:text-[#b32d3a] transition-all" /></div>
+        </div>
       </div>
       {isOpen && mounted && createPortal(slideOverContent, document.body)}
     </>

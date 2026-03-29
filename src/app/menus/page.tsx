@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react'; // Added Suspense
+import { useState, useEffect, Suspense, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { 
-  Clock, 
   ShieldCheck, 
   Plus, 
   Users, 
@@ -23,7 +22,6 @@ import { useCart } from '@/context/CartContext';
 import DeliveryScheduler from '@/components/DeliveryScheduler';
 import toast from 'react-hot-toast';
 
-// 1. All your original logic moves here
 function MenuContent() {
   const { addToCart, deliverySlot } = useCart();
   const searchParams = useSearchParams();
@@ -31,17 +29,17 @@ function MenuContent() {
   
   const [activeTab, setActiveTab] = useState('Sandwich Platters');
   const [flyingItem, setFlyingItem] = useState<{ id: number; x: number; y: number; img: string } | null>(null);
-  
   const [dbProducts, setDbProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Ref for the horizontal scroll to ensure we can programmatically scroll to active tab
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const menuCategories = [
     { id: 'Sandwich Platters', label: 'Sandwich Platters', icon: <Users className="w-4 h-4" /> },
     { id: 'Wrap Platters', label: 'Wrap Platters', icon: <LayoutGrid className="w-4 h-4" /> },
-    { id: 'Platters', label: 'All Platters', icon: <Users className="w-4 h-4" />, hidden: true },
     { id: 'Individual Sandwiches', label: 'Individual Sandwiches', icon: <ShoppingBag className="w-4 h-4" /> },
     { id: 'Individual Boxes', label: 'Individual Boxes', icon: <Box className="w-4 h-4" /> },
-    { id: 'Lunch Boxes', label: 'Lunch Boxes', icon: <Box className="w-4 h-4" />, hidden: true },
     { id: 'Salad', label: 'Salads & Sides', icon: <Leaf className="w-4 h-4" /> },
     { id: 'Breakfast Menu', label: 'Breakfast Menu', icon: <Coffee className="w-4 h-4" /> },
     { id: 'Deserts', label: 'Desserts', icon: <Cookie className="w-4 h-4" /> },
@@ -119,22 +117,25 @@ function MenuContent() {
   };
 
   return (
-    <main className="bg-white min-h-screen text-slate-900 overflow-x-hidden pt-10">
+    <main className="bg-white min-h-screen text-slate-900 overflow-x-hidden">
       <style jsx global>{`
         @keyframes flyToCart {
-          0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
-          20% { transform: translate(-50%, -50%) scale(1.4) rotate(-15deg); }
-          100% { left: 95vw; top: 90vh; transform: translate(-100%, -50%) scale(0.1) rotate(90deg); opacity: 0; }
+          0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+          100% { left: 90%; top: 90%; transform: translate(-50%, -50%) scale(0.1); opacity: 0; }
         }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
-      <div className="sticky top-[80px] z-[100] transition-all duration-300">
+      {/* Sticky Scheduler */}
+      <div className="sticky top-16 md:top-20 z-[100]">
         <DeliveryScheduler />
       </div>
 
+      {/* Flying Animation */}
       {flyingItem && (
         <div
-          className="fixed pointer-events-none z-[9999] w-20 h-20 rounded-2xl overflow-hidden shadow-2xl border-2 border-white"
+          className="fixed pointer-events-none z-[9999] w-16 h-16 md:w-20 md:h-20 rounded-2xl overflow-hidden shadow-2xl border-2 border-white"
           style={{
             left: flyingItem.x,
             top: flyingItem.y,
@@ -145,27 +146,32 @@ function MenuContent() {
         </div>
       )}
 
-      <section className="py-16 px-6 max-w-6xl mx-auto text-center">
-        <div className="flex justify-center items-center gap-2 mb-6">
-          <div className="h-[1px] w-8 bg-[#b32d3a]"></div>
-          <span className="text-[#b32d3a] font-black uppercase tracking-[0.4em] text-[10px]">The Office Lunch Richmond</span>
-          <div className="h-[1px] w-8 bg-[#b32d3a]"></div>
+      {/* Hero Header */}
+      <section className="pt-12 md:pt-20 pb-8 px-6 max-w-6xl mx-auto text-center">
+        <div className="flex justify-center items-center gap-2 mb-4 md:mb-6">
+          <div className="h-[1px] w-6 md:w-8 bg-[#b32d3a]"></div>
+          <span className="text-[#b32d3a] font-black uppercase tracking-[0.4em] text-[8px] md:text-[10px]">The Office Lunch Richmond</span>
+          <div className="h-[1px] w-6 md:w-8 bg-[#b32d3a]"></div>
         </div>
         
-        <h1 className="text-6xl md:text-7xl font-black uppercase tracking-tighter mb-12 leading-none text-balance text-slate-900">
+        <h1 className="text-4xl md:text-7xl font-black uppercase tracking-tighter mb-8 md:mb-12 leading-[0.9] text-slate-900">
           Catering for <br />
           <span className="text-[#b32d3a]">Every Scale.</span>
         </h1>
         
-        <div className="flex flex-wrap justify-center gap-2 md:gap-3 mb-16 max-w-7xl mx-auto px-4">
-          {menuCategories.filter(c => !c.hidden).map((cat) => (
+        {/* CATEGORY NAV: Swipeable on mobile, flex-wrap on desktop */}
+        <div 
+          ref={scrollRef}
+          className="flex overflow-x-auto md:flex-wrap md:justify-center gap-2 md:gap-3 mb-10 md:mb-16 hide-scrollbar pb-4 md:pb-0 px-2"
+        >
+          {menuCategories.map((cat) => (
             <button
               key={cat.id}
               type="button"
               onClick={() => setActiveTab(cat.id)}
-              className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all border-2 ${
+              className={`flex items-center gap-2 px-4 py-2.5 md:px-5 md:py-3 rounded-xl md:rounded-2xl font-black uppercase tracking-widest text-[9px] md:text-[10px] transition-all border-2 whitespace-nowrap shrink-0 ${
                 activeTab === cat.id
-                  ? 'bg-[#b32d3a] border-[#b32d3a] text-white shadow-lg scale-105'
+                  ? 'bg-[#b32d3a] border-[#b32d3a] text-white shadow-lg md:scale-105'
                   : 'bg-white border-slate-100 text-slate-800 hover:border-slate-300'
               }`}
             >
@@ -178,30 +184,32 @@ function MenuContent() {
         </div>
       </section>
 
-      <section className="px-6 pb-24 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      {/* PRODUCT GRID */}
+      <section className="px-4 md:px-6 pb-24 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
           {getDisplayItems().map((item) => {
             const isSoldOut = item.stock <= 0 || item.isAvailable === false;
             
             return (
-              <div key={item._id} className="group bg-slate-50/50 rounded-[2.5rem] p-6 flex flex-col md:flex-row gap-6 items-center border border-transparent hover:border-slate-200 transition-all shadow-sm">
+              <div key={item._id} className="group bg-slate-50/50 rounded-[2rem] md:rounded-[2.5rem] p-4 md:p-6 flex flex-col sm:flex-row gap-4 md:gap-6 items-center border border-transparent hover:border-slate-200 transition-all shadow-sm">
                 
-                <div className="relative w-full md:w-48 h-48 shrink-0">
-                  <div className="w-full h-full bg-white rounded-3xl overflow-hidden shadow-inner relative">
+                {/* Image Container */}
+                <div className="relative w-full sm:w-40 md:w-48 aspect-square shrink-0">
+                  <div className="w-full h-full bg-white rounded-2xl md:rounded-3xl overflow-hidden shadow-inner relative">
                     <img 
                       src={item.image} 
                       alt={item.name} 
-                      className={`w-full h-full object-cover transition-transform duration-700 ${isSoldOut ? 'grayscale' : 'group-hover:scale-105'}`} 
+                      className={`w-full h-full object-cover transition-transform duration-700 ${isSoldOut ? 'grayscale' : 'group-hover:scale-110'}`} 
                     />
                     {isSoldOut && (
                       <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-[1px]">
-                        <span className="text-white font-black uppercase tracking-widest text-[10px] border-2 border-white px-4 py-2 rounded-full">Sold Out</span>
+                        <span className="text-white font-black uppercase tracking-widest text-[8px] md:text-[10px] border-2 border-white px-3 py-1.5 md:px-4 md:py-2 rounded-full">Sold Out</span>
                       </div>
                     )}
                   </div>
 
                   {!isSoldOut && (
-                    <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/10 rounded-3xl">
+                    <div className="absolute inset-0 z-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/20 rounded-2xl md:rounded-3xl">
                       <button
                         type="button"
                         onClick={(e) => handleAddToBasket(e, item)}
@@ -213,23 +221,37 @@ function MenuContent() {
                   )}
                 </div>
 
-                <div className="flex-1 w-full text-left">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="text-lg font-black uppercase text-slate-900 tracking-tight leading-tight">{item.name}</h3>
-                    <span className="text-[#b32d3a] font-black text-sm whitespace-nowrap ml-4">£{(item.price || 0).toFixed(2)}</span>
+                {/* Content Container */}
+                <div className="flex-1 w-full text-left flex flex-col justify-between h-full py-1">
+                  <div>
+                    <div className="flex justify-between items-start mb-2 gap-2">
+                      <h3 className="text-base md:text-lg font-black uppercase text-slate-900 tracking-tight leading-tight">{item.name}</h3>
+                      <span className="text-[#b32d3a] font-black text-sm md:text-base whitespace-nowrap">£{(item.price || 0).toFixed(2)}</span>
+                    </div>
+                    <p className="text-slate-500 font-medium text-[11px] md:text-xs leading-relaxed mb-4 line-clamp-2 italic">{item.description}</p>
                   </div>
-                  <p className="text-slate-600 font-medium text-xs leading-relaxed mb-4 line-clamp-3 italic">{item.description}</p>
                   
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 mt-auto">
                     {item.stock > 0 && item.stock <= 5 && (
-                      <span className="flex items-center gap-1 text-[9px] font-black text-[#b32d3a] uppercase tracking-widest px-2 py-1 bg-red-50 rounded-lg animate-pulse">
-                        <Flame className="w-3 h-3" /> Low Stock
+                      <span className="flex items-center gap-1 text-[8px] md:text-[9px] font-black text-[#b32d3a] uppercase tracking-widest px-2 py-1 bg-red-50 rounded-lg animate-pulse">
+                        <Flame className="w-2.5 h-2.5" /> Low Stock
                       </span>
                     )}
-                    <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg bg-white border border-slate-200 text-slate-400">
-                      <ShieldCheck className="w-3 h-3" /> Eco Friendly
+                    <span className="flex items-center gap-1 text-[8px] md:text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg bg-white border border-slate-200 text-slate-400">
+                      <ShieldCheck className="w-2.5 h-2.5" /> Eco Friendly
                     </span>
                   </div>
+                  
+                  {/* Mobile-only Quick Add Button */}
+                  <button
+                    type="button"
+                    onClick={(e) => handleAddToBasket(e, item)}
+                    className={`sm:hidden mt-4 w-full py-3 rounded-xl font-black uppercase text-[10px] tracking-[0.2em] transition-all flex items-center justify-center gap-2 ${
+                      isSoldOut ? 'bg-slate-100 text-slate-300 pointer-events-none' : 'bg-slate-900 text-white active:bg-[#b32d3a]'
+                    }`}
+                  >
+                    {isSoldOut ? 'Unavailable' : 'Add to Order'}
+                  </button>
                 </div>
               </div>
             );
@@ -239,14 +261,14 @@ function MenuContent() {
         {loading && (
           <div className="flex flex-col items-center mt-20 gap-4">
              <div className="w-8 h-8 border-4 border-[#b32d3a] border-t-transparent rounded-full animate-spin"></div>
-             <p className="font-black uppercase text-slate-400 text-xs tracking-widest">Refreshing Kitchen...</p>
+             <p className="font-black uppercase text-slate-400 text-[10px] tracking-widest">Refreshing Kitchen...</p>
           </div>
         )}
         
         {!loading && getDisplayItems().length === 0 && (
-          <div className="text-center mt-20 py-20 bg-slate-50 rounded-[3rem]">
-            <AlertCircle className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-            <p className="font-black uppercase text-slate-400 text-sm tracking-widest">No items found in this category</p>
+          <div className="text-center mt-10 py-20 bg-slate-50 rounded-[2rem] border border-dashed border-slate-200">
+            <AlertCircle className="w-10 h-10 text-slate-300 mx-auto mb-4" />
+            <p className="font-black uppercase text-slate-400 text-xs tracking-widest">No items found in this category</p>
           </div>
         )}
       </section>
@@ -254,7 +276,6 @@ function MenuContent() {
   );
 }
 
-// 2. The Exported Page Component (Satisfies Vercel build)
 export default function MenuPage() {
   return (
     <Suspense fallback={

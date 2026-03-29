@@ -59,6 +59,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [selectedDate, setSelectedDate] = useState<string>(today);
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
 
+  // 1. PERSISTENCE: Load cart from LocalStorage on mount
+  useEffect(() => {
+    const savedCart = localStorage.getItem('office_lunch_cart');
+    if (savedCart) {
+      try {
+        setItems(JSON.parse(savedCart));
+      } catch (e) {
+        console.error("Failed to parse saved cart");
+      }
+    }
+  }, []);
+
+  // 2. PERSISTENCE: Save cart whenever items change
+  useEffect(() => {
+    localStorage.setItem('office_lunch_cart', JSON.stringify(items));
+  }, [items]);
+
   useEffect(() => {
     const fetchUserAddress = async () => {
       if (status === "authenticated" && !selectedAddress) {
@@ -83,20 +100,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [status]);
 
-  /**
-   * REORDER FIX: 
-   * We now look for 'productId' or 'id' and accept an incoming 'quantity'.
-   */
   const addToCart = (product: any) => {
     setItems((prev) => {
-      const productId = product.id || product._id || product.productId || product.name;
+      // Normalize ID checks to handle different DB schemas
+      const productId = product.id || product._id || product.productId;
       const existing = prev.find((i) => i.id === productId);
       
-      // If we are reordering, product.quantity will exist. If shopping, default to 1.
       const qtyToAdd = product.quantity || 1;
 
       if (existing) {
-        return prev.map((i) => i.id === productId ? { ...i, quantity: i.quantity + qtyToAdd } : i);
+        return prev.map((i) => 
+          i.id === productId ? { ...i, quantity: i.quantity + qtyToAdd } : i
+        );
       }
       return [...prev, { 
         id: productId, 
@@ -108,11 +123,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }];
     });
     
-    // UI Feedback
-    setTimeout(() => {
-      setIsPulsing(true);
-      setTimeout(() => setIsPulsing(false), 600);
-    }, 200);
+    // UI Feedback for the StickyBasket icon
+    setIsPulsing(true);
+    setTimeout(() => setIsPulsing(false), 600);
   };
 
   const decrementQuantity = (id: number | string) => {
@@ -132,8 +145,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setDeliverySlot(null);
     setSelectedDate(today);
     setSelectedAddress(null);
+    localStorage.removeItem('office_lunch_cart');
   }, [today]);
 
+  // Derived state calculations
   const total = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
   const deliveryFee = total > 0 ? STANDARD_DELIVERY_FEE : 0;
@@ -142,6 +157,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const amountToMin = Math.max(0, MIN_ORDER_VALUE - total);
 
   const placeOrder = async (userId?: string) => {
+    // Placeholder for actual API call
     return { success: true };
   };
 

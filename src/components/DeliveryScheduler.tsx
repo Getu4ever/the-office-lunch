@@ -12,27 +12,21 @@ export default function DeliveryScheduler({ minDate }: DeliverySchedulerProps) {
   const { setDeliverySlot, deliverySlot, setSelectedDate: setGlobalDate } = useCart();
   const [isSlotPickerOpen, setIsSlotPickerOpen] = useState(false);
   
-  // Logic to get today's date in YYYY-MM-DD format based on local time
   const getTodayStr = () => {
     const now = new Date();
-    return now.toLocaleDateString('en-CA'); // Outputs YYYY-MM-DD
+    return now.toLocaleDateString('en-CA'); 
   };
 
   const today = getTodayStr();
-
-  // Initialize with the provided minDate or today's date
-  // This ensures a guest never starts with a past date
   const [selectedDate, setSelectedDate] = useState(minDate || today);
   const [timeLeft, setTimeLeft] = useState({ hrs: 0, mins: 41, secs: 0 });
 
-  // Update internal date if prop changes, but safeguard against past dates
   useEffect(() => {
     const validDate = minDate && minDate >= today ? minDate : today;
     setSelectedDate(validDate);
     if (setGlobalDate) setGlobalDate(validDate);
   }, [minDate, today, setGlobalDate]);
 
-  // Ticking Countdown Logic
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft(prev => {
@@ -45,7 +39,6 @@ export default function DeliveryScheduler({ minDate }: DeliverySchedulerProps) {
     return () => clearInterval(timer);
   }, []);
 
-  // Filtered Time Slots Logic
   const availableSlots = useMemo(() => {
     const allSlots = [
       { label: "6:00 AM - 8:00 AM", startHour: 6 },
@@ -66,61 +59,63 @@ export default function DeliveryScheduler({ minDate }: DeliverySchedulerProps) {
     if (!isToday) return allSlots.map(s => s.label);
 
     const currentHour = now.getHours();
-    // Only show slots starting at least 2 hours from now
     return allSlots
       .filter(slot => slot.startHour >= currentHour + 2)
       .map(slot => slot.label);
   }, [selectedDate, today]);
 
   return (
-        <div className="sticky top-20 w-full bg-slate-50 border-b border-slate-200 py-6 px-4 z-[110] shadow-sm">      
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+    <div className="sticky top-16 md:top-20 w-full bg-slate-50 border-b border-slate-200 py-4 md:py-6 px-4 z-[110] shadow-sm">      
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
         
-        {/* Left: Branding & Current Selection */}
-        <div className="flex items-center gap-4">
-          <div className="bg-white p-3 rounded-xl shadow-sm border border-slate-100">
-            <Calendar className="text-[#b32d3a] w-6 h-6" />
+        {/* Left: Branding */}
+        <div className="flex items-center gap-4 w-full md:w-auto">
+          <div className="bg-white p-2 md:p-3 rounded-xl shadow-sm border border-slate-100 shrink-0">
+            <Calendar className="text-[#b32d3a] w-5 h-5 md:w-6 md:h-6" />
           </div>
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1 text-left">Current Ordering Window</p>
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight text-left">
+          <div className="min-w-0">
+            <p className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5 md:mb-1 text-left">Current Ordering Window</p>
+            <h2 className="text-lg md:text-2xl font-black text-slate-900 tracking-tight text-left truncate">
               Order for <span className="text-[#b32d3a]">{selectedDate}</span>
             </h2>
           </div>
         </div>
 
-        {/* Center: Ticking Countdown Visual */}
-        <div className="flex items-center gap-6">
+        {/* Center: Countdown - Scaled for mobile */}
+        <div className="flex items-center gap-4 md:gap-6 justify-center">
           {[
             { val: timeLeft.hrs, label: 'Hrs' },
             { val: timeLeft.mins, label: 'Mins' },
             { val: timeLeft.secs, label: 'Secs' }
           ].map((item, idx) => (
             <div key={idx} className="flex flex-col items-center">
-              <div className="bg-[#0f172a] text-white w-14 h-14 rounded-full flex items-center justify-center text-xl font-black shadow-lg">
+              <div className="bg-[#0f172a] text-white w-10 h-10 md:w-14 md:h-14 rounded-full flex items-center justify-center text-sm md:text-xl font-black shadow-lg">
                 {item.val.toString().padStart(2, '0')}
               </div>
-              <span className="text-[9px] font-black uppercase mt-2 tracking-widest text-slate-500">{item.label}</span>
+              <span className="text-[7px] md:text-[9px] font-black uppercase mt-1 md:mt-2 tracking-widest text-slate-500">{item.label}</span>
             </div>
           ))}
         </div>
 
         {/* Right: Trigger Button & Dropdown */}
-        <div className="relative">
+        <div className="relative w-full md:w-auto">
           <button 
             type="button"
             onClick={() => setIsSlotPickerOpen(!isSlotPickerOpen)}
-            className="bg-[#b32d3a] hover:bg-[#962631] text-white px-10 py-4 rounded-xl font-black text-lg shadow-xl flex items-center gap-3 active:scale-95 transition-all"
+            className="w-full md:w-auto bg-[#b32d3a] hover:bg-[#962631] text-white px-6 md:px-10 py-3 md:py-4 rounded-xl font-black text-sm md:text-lg shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-all"
           >
-            {deliverySlot ? `Slot: ${deliverySlot}` : 'Book your slot'}
-            <ChevronDown className={`w-5 h-5 transition-transform ${isSlotPickerOpen ? 'rotate-180' : ''}`} />
+            <span className="truncate">{deliverySlot ? `Slot: ${deliverySlot}` : 'Book your slot'}</span>
+            <ChevronDown className={`w-4 h-4 md:w-5 md:h-5 shrink-0 transition-transform ${isSlotPickerOpen ? 'rotate-180' : ''}`} />
           </button>
 
           {isSlotPickerOpen && (
-            <div className="absolute top-full right-0 mt-4 w-80 bg-white rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-slate-100 p-6 z-[120] animate-in fade-in slide-in-from-top-4">
+            /* FIXED: absolute positioning for mobile vs desktop */
+            <div className="fixed inset-x-4 top-1/2 -translate-y-1/2 md:absolute md:inset-auto md:top-full md:right-0 md:translate-y-0 mt-4 w-auto md:w-80 bg-white rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-slate-100 p-6 z-[120] animate-in fade-in zoom-in-95 duration-200">
                <div className="flex justify-between items-center mb-6 text-left">
                  <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Delivery Setup</span>
-                 <button type="button" onClick={() => setIsSlotPickerOpen(false)}><X className="w-5 h-5 text-slate-300" /></button>
+                 <button type="button" onClick={() => setIsSlotPickerOpen(false)} className="p-2 hover:bg-slate-50 rounded-full transition-colors">
+                   <X className="w-5 h-5 text-slate-300" />
+                 </button>
                </div>
 
                <div className="mb-6 text-left">
@@ -128,13 +123,12 @@ export default function DeliveryScheduler({ minDate }: DeliverySchedulerProps) {
                  <input 
                    type="date" 
                    value={selectedDate}
-                   // FIX: Ensure 'min' is always today or the provided minDate, never earlier
                    min={minDate && minDate >= today ? minDate : today}
                    onChange={(e) => {
                      setSelectedDate(e.target.value);
                      if (setGlobalDate) setGlobalDate(e.target.value);
                    }}
-                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-sm outline-none cursor-pointer"
+                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-bold text-sm outline-none cursor-pointer focus:border-[#b32d3a] transition-colors"
                  />
                </div>
                
@@ -147,19 +141,31 @@ export default function DeliveryScheduler({ minDate }: DeliverySchedulerProps) {
                          key={slot}
                          type="button"
                          onClick={() => { setDeliverySlot(slot); setIsSlotPickerOpen(false); }}
-                         className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold transition-all ${
-                           deliverySlot === slot ? 'bg-[#b32d3a] text-white' : 'bg-white border border-slate-100 hover:bg-slate-50 text-slate-700'
+                         className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold transition-all border ${
+                           deliverySlot === slot 
+                             ? 'bg-[#b32d3a] border-[#b32d3a] text-white shadow-md' 
+                             : 'bg-white border-slate-100 hover:bg-slate-50 text-slate-700'
                          }`}
                       >
                          {slot}
                        </button>
                      ))
                    ) : (
-                     <p className="text-[10px] font-bold text-rose-500 uppercase p-2 text-center">No more slots available for today.</p>
+                     <div className="py-4 px-2 bg-rose-50 rounded-xl border border-rose-100">
+                       <p className="text-[10px] font-bold text-rose-500 uppercase text-center">No more slots available for today.</p>
+                     </div>
                    )}
                  </div>
                </div>
             </div>
+          )}
+          
+          {/* Mobile Overlay to close picker when clicking outside */}
+          {isSlotPickerOpen && (
+            <div 
+              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[-1] md:hidden" 
+              onClick={() => setIsSlotPickerOpen(false)}
+            />
           )}
         </div>
       </div>
