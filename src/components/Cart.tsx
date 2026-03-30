@@ -47,6 +47,7 @@ export default function Cart() {
     const upperVal = val.toUpperCase();
     setAddressInput(upperVal);
     if (upperVal.length >= 2) {
+      // Logic for smarter lookup - showing suggestions based on postcode
       setSuggestions([`${upperVal}`, `${upperVal}, London`, `${upperVal}, Surrey`]);
       setShowSuggestions(true);
     } else {
@@ -97,7 +98,7 @@ export default function Cart() {
           
           <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-[#f5f0e6]/40 shrink-0">
             <h2 className="text-2xl font-black uppercase tracking-tighter italic leading-none text-left underline decoration-[#b32d3a] decoration-4">Your Selection</h2>
-            <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-slate-100 rounded-full">
+            <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
               <X className="w-6 h-6 text-slate-400" />
             </button>
           </div>
@@ -117,9 +118,9 @@ export default function Cart() {
                       <h4 className="font-black uppercase text-[10px] leading-tight truncate">{item.name}</h4>
                       <div className="flex items-center justify-between mt-2">
                         <div className="flex items-center bg-white rounded-lg border border-slate-200 p-0.5">
-                          <button onClick={() => decrementQuantity(item.id)} className="px-1.5 py-0.5 hover:text-[#b32d3a]"><Minus className="w-3 h-3" /></button>
+                          <button onClick={() => decrementQuantity(item.id)} className="px-1.5 py-0.5 hover:text-[#b32d3a] transition-colors"><Minus className="w-3 h-3" /></button>
                           <span className="px-2 text-[10px] font-black">{item.quantity}</span>
-                          <button onClick={() => addToCart(item)} className="px-1.5 py-0.5 hover:text-[#b32d3a]"><Plus className="w-3 h-3" /></button>
+                          <button onClick={() => addToCart(item)} className="px-1.5 py-0.5 hover:text-[#b32d3a] transition-colors"><Plus className="w-3 h-3" /></button>
                         </div>
                         <p className="font-black text-[11px]">£{(item.price * item.quantity).toFixed(2)}</p>
                       </div>
@@ -129,26 +130,82 @@ export default function Cart() {
               )}
             </div>
 
-            {/* Delivery Inputs */}
-            <div className="bg-stone-50 p-6 rounded-[2.5rem] border border-stone-100 space-y-4 shadow-inner text-left">
+            {/* Delivery Inputs - Stabilized with fixed min-height to prevent wobble */}
+            <div className="bg-stone-50 p-6 rounded-[2.5rem] border border-stone-100 space-y-4 shadow-inner text-left min-h-[250px] transition-all duration-300">
               <p className="text-[11px] font-black uppercase text-[#b32d3a] tracking-widest flex items-center gap-2">
                 <span className="w-1.5 h-1.5 bg-[#b32d3a] rounded-full animate-pulse" /> Delivery Details
               </p>
-              {isManual ? (
-                <div className="space-y-3">
-                  <input type="text" placeholder="Postcode..." value={addressInput} onChange={(e) => handleAddressSearch(e.target.value)} className="w-full px-5 py-4 bg-white border border-stone-200 rounded-2xl text-[11px] font-bold outline-none" />
-                  <input type="text" placeholder="House No. & Street" value={streetInput} onChange={(e) => setStreetInput(e.target.value)} className="w-full px-5 py-4 bg-white border border-stone-200 rounded-2xl text-[11px] font-bold outline-none" />
-                  <input type="tel" placeholder="Phone Number" value={phoneInput} onChange={(e) => setPhoneInput(e.target.value)} className="w-full px-5 py-4 bg-white border border-stone-200 rounded-2xl text-[11px] font-bold outline-none" />
-                </div>
-              ) : (
-                <div className="flex items-center gap-4 bg-white p-4 rounded-2xl border border-stone-200">
-                  <MapPin className="w-5 h-5 text-[#b32d3a]" />
-                  <div className="text-left">
-                    <p className="text-[12px] font-black uppercase leading-tight truncate">{selectedAddress?.addressLine1}</p>
-                    <p className="text-[10px] font-bold text-stone-400 uppercase mt-1 tracking-tight">{selectedAddress?.telephone}</p>
+              
+              <div className="relative">
+                {isManual ? (
+                  <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <div className="relative">
+                      <input 
+                        type="text" 
+                        placeholder="Postcode (e.g. TW9 1AB)" 
+                        value={addressInput} 
+                        onChange={(e) => handleAddressSearch(e.target.value)} 
+                        className="w-full px-5 py-4 bg-white border border-stone-200 rounded-2xl text-[11px] font-bold outline-none focus:border-[#b32d3a] pr-12 transition-all uppercase" 
+                      />
+                      <Search className="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-300" />
+                      
+                      {/* Smart Suggestions Dropdown */}
+                      {showSuggestions && (
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-stone-100 shadow-2xl rounded-2xl z-[1100] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                          {suggestions.map((sug, i) => (
+                            <button
+                              key={i}
+                              onClick={() => {
+                                setStreetInput(sug);
+                                setShowSuggestions(false);
+                              }}
+                              className="w-full text-left px-5 py-4 text-[10px] font-black uppercase hover:bg-stone-50 border-b border-stone-50 last:border-none transition-colors"
+                            >
+                              {sug}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <input 
+                      type="text" 
+                      placeholder="House No. & Street" 
+                      value={streetInput} 
+                      onChange={(e) => setStreetInput(e.target.value)} 
+                      className="w-full px-5 py-4 bg-white border border-stone-200 rounded-2xl text-[11px] font-bold outline-none focus:border-[#b32d3a] transition-all" 
+                    />
+                    
+                    <input 
+                      type="tel" 
+                      placeholder="Phone Number" 
+                      value={phoneInput} 
+                      onChange={(e) => setPhoneInput(e.target.value)} 
+                      className="w-full px-5 py-4 bg-white border border-stone-200 rounded-2xl text-[11px] font-bold outline-none focus:border-[#b32d3a] transition-all" 
+                    />
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div className="flex items-center gap-4 bg-white p-5 rounded-2xl border border-stone-200 animate-in fade-in zoom-in-95 duration-300">
+                    <div className="bg-[#f5f0e6] p-3 rounded-xl shrink-0">
+                      <MapPin className="w-5 h-5 text-[#b32d3a]" />
+                    </div>
+                    <div className="text-left flex-1 min-w-0">
+                      <p className="text-[12px] font-black uppercase leading-tight truncate">
+                        {selectedAddress?.addressLine1 || streetInput}
+                      </p>
+                      <p className="text-[10px] font-bold text-stone-400 uppercase mt-1 tracking-tight">
+                        {selectedAddress?.telephone || phoneInput}
+                      </p>
+                      <button 
+                        onClick={() => setIsManual(true)}
+                        className="mt-2 text-[9px] font-black text-[#b32d3a] uppercase hover:underline flex items-center gap-1 transition-opacity"
+                      >
+                        Change Address <ArrowRight className="w-2 h-2" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -162,7 +219,6 @@ export default function Cart() {
               <div className={`h-full transition-all duration-700 ${minOrderMet ? 'bg-emerald-500' : 'bg-[#b32d3a]'}`} style={{ width: `${Math.min(100, (total / 50) * 100)}%` }} />
             </div>
 
-            {/* THE MISSING CALCULATIONS REPLACED */}
             <div className="px-2 pt-2 space-y-1">
               <div className="flex justify-between text-[11px] font-bold text-slate-400 uppercase tracking-tighter">
                 <span>Subtotal</span>

@@ -40,6 +40,14 @@ export default function Navbar() {
 
   return (
     <>
+      {/* MOBILE FLYING ANIMATION STYLES */}
+      <style jsx global>{`
+        @keyframes flyToCartMobile {
+          0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+          100% { left: 85%; top: 40px; transform: translate(-50%, -50%) scale(0.1); opacity: 0; }
+        }
+      `}</style>
+
       {/* 1. HERO SECTION - Added overflow-x-hidden to prevent shimmy */}
       <section className={`relative w-full overflow-hidden transition-all duration-700 ${
         isHome ? 'h-[90vh] min-h-[600px] md:min-h-[700px]' : 'h-[50vh] md:h-[60vh] min-h-[350px] md:min-h-[450px]'
@@ -88,9 +96,7 @@ export default function Navbar() {
           </div>
           
           {/* Desktop Menu */}
-          <div className={`hidden xl:flex items-center gap-8 text-[11px] font-black uppercase tracking-[0.2em] ${
-            scrolled ? 'text-slate-900' : 'text-white'
-          }`}>
+          <div className={`hidden xl:flex items-center gap-8 text-[13px] font-black uppercase tracking-[0.15em] ${scrolled ? 'text-slate-900' : 'text-white'}`}>
             <Link href="/" className="hover:text-[#b32d3a] transition-colors">Home</Link>
             <Link href="/menus" className="hover:text-[#b32d3a] transition-colors">Menus</Link>
             <Link href="/about" className="hover:text-[#b32d3a] transition-colors">About Us</Link>
@@ -101,7 +107,7 @@ export default function Navbar() {
                 Sign Out ({session.user?.name?.split(' ')[0]})
               </button>
             ) : (
-              <Link href="/login" className="hover:text-[#b32d3a] whitespace-nowrap">Login</Link>
+              <Link href="/login" className="hover:text-[#b32d3a] whitespace-nowrap">Login/Register</Link>
             )}
           </div>
 
@@ -130,8 +136,9 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <Link href="/menus" className="flex items-center gap-2 bg-[#b32d3a] text-white px-4 py-1.5 rounded-lg font-black text-[9px] uppercase tracking-widest hover:bg-red-800 transition-all text-center justify-center shadow-md">
-                    <ShoppingBag size={12} /> Order Now
+                  {/* UPDATED: BALANCED ORDER NOW BUTTON */}
+                  <Link href="/menus" className="flex items-center gap-2 bg-[#b32d3a] text-white px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-800 transition-all text-center justify-center shadow-md">
+                    <ShoppingBag size={13} /> Order Now
                   </Link>
                   {session && (
                     <Link href="/dashboard" className="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-4 py-1.5 rounded-lg font-black text-[9px] uppercase tracking-widest transition-all text-center justify-center shadow-sm">

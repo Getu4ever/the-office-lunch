@@ -33,7 +33,8 @@ interface CartContextType {
   setDeliverySlot: (slot: string | null) => void;
   setSelectedDate: (date: string) => void;
   setSelectedAddress: (address: Address | null) => void;
-  addToCart: (product: any) => void;
+  // UPDATED: addToCart now accepts optional coordinates for the animation
+  addToCart: (product: any, coords?: { x: number; y: number }) => void;
   removeFromCart: (id: number | string) => void;
   decrementQuantity: (id: number | string) => void;
   clearCart: () => void;
@@ -59,7 +60,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [selectedDate, setSelectedDate] = useState<string>(today);
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
 
-  // 1. PERSISTENCE: Load cart from LocalStorage on mount
+  // NEW: Global State for Flying Animation
+  const [flyingItem, setFlyingItem] = useState<{ id: number; x: number; y: number; img: string } | null>(null);
+
   useEffect(() => {
     const savedCart = localStorage.getItem('office_lunch_cart');
     if (savedCart) {
@@ -71,7 +74,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // 2. PERSISTENCE: Save cart whenever items change
   useEffect(() => {
     localStorage.setItem('office_lunch_cart', JSON.stringify(items));
   }, [items]);
@@ -100,12 +102,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [status]);
 
-  const addToCart = (product: any) => {
+  // UPDATED: addToCart logic with global animation trigger
+  const addToCart = (product: any, coords?: { x: number; y: number }) => {
+    const productId = product.id || product._id || product.productId;
+    
+    // If coordinates are provided, trigger the flying animation
+    if (coords) {
+      setFlyingItem({
+        id: Date.now(),
+        x: coords.x,
+        y: coords.y,
+        img: product.image
+      });
+      setTimeout(() => setFlyingItem(null), 900);
+    }
+
     setItems((prev) => {
-      // Normalize ID checks to handle different DB schemas
-      const productId = product.id || product._id || product.productId;
       const existing = prev.find((i) => i.id === productId);
-      
       const qtyToAdd = product.quantity || 1;
 
       if (existing) {
@@ -123,7 +136,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }];
     });
     
-    // UI Feedback for the StickyBasket icon
     setIsPulsing(true);
     setTimeout(() => setIsPulsing(false), 600);
   };
@@ -148,7 +160,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('office_lunch_cart');
   }, [today]);
 
-  // Derived state calculations
   const total = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   const cartCount = items.reduce((acc, item) => acc + item.quantity, 0);
   const deliveryFee = total > 0 ? STANDARD_DELIVERY_FEE : 0;
@@ -157,7 +168,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const amountToMin = Math.max(0, MIN_ORDER_VALUE - total);
 
   const placeOrder = async (userId?: string) => {
-    // Placeholder for actual API call
     return { success: true };
   };
 
@@ -169,6 +179,28 @@ export function CartProvider({ children }: { children: ReactNode }) {
       total, grandTotal, cartCount, minOrderMet, deliveryFee, amountToMin
     }}>
       {children}
+
+      {/* GLOBAL FLYING ANIMATION OVERLAY */}
+      <style jsx global>{`
+        @keyframes globalFlyToCart {
+          0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+          /* Targets bottom right specifically for mobile/dashboard consistency */
+          100% { left: 90%; top: 90%; transform: translate(-50%, -50%) scale(0.1); opacity: 0; }
+        }
+      `}</style>
+
+      {flyingItem && (
+        <div
+          className="fixed pointer-events-none z-[9999] w-16 h-16 md:w-20 md:h-20 rounded-2xl overflow-hidden shadow-2xl border-2 border-white bg-white"
+          style={{
+            left: flyingItem.x,
+            top: flyingItem.y,
+            animation: 'globalFlyToCart 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards'
+          }}
+        >
+          <img src={flyingItem.img} className="w-full h-full object-cover" alt="flying" />
+        </div>
+      )}
     </CartContext.Provider>
   );
 }

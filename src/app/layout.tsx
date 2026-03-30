@@ -6,7 +6,7 @@ import AuthProvider from "@/components/AuthProvider";
 import Navbar from '@/components/Navbar';
 import Footer from "@/components/Footer";
 import PageTransition from '@/components/PageTransition';
-import LiveChat from "@/components/LiveChat";
+import LiveChat from "@/components/TawkTo"; // Importing TawkTo logic as LiveChat
 import Cart from "@/components/Cart"; 
 import StickyBasket from "@/components/StickyBasket"; 
 import { Toaster } from "react-hot-toast";
@@ -42,8 +42,6 @@ export default function RootLayout({
         }}
         suppressHydrationWarning={true}
       >
-        <LiveChat />
-
         <AuthProvider>
           <CartProvider>
             <Toaster 
@@ -79,9 +77,12 @@ export default function RootLayout({
 
             <Footer />
             
-            {/* These are now here for everyone, Admin included */}
+            {/* Kept on the right */}
             <Cart />
             <StickyBasket />
+
+            {/* Moved to the end - Logic handles Far Bottom Left positioning */}
+            <LiveChat />
 
           </CartProvider>
         </AuthProvider>

@@ -91,18 +91,18 @@ export default function ContactPage() {
               </div>
             </div>
 
-            {/* LOCATION MAP */}
-            <div className="relative h-96 rounded-[3rem] overflow-hidden shadow-2xl border border-slate-100 group">
+            {/* LOCATION MAP - Added touch-action and pointer-events control to stop mobile wobble */}
+            <div className="relative h-96 rounded-[3rem] overflow-hidden shadow-2xl border border-slate-100 group touch-none">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2485.6723225211833!2d-0.30138379999999996!3d51.4641527!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4876033722424fa9%3A0x86a7a4a8e495431f!2sSandwich%20platters%20delivery-%20Sandwich%20delivery%20-%20Office%20lunch!5e0!3m2!1sen!2suk!4v1711651400000!5m2!1sen!2suk"
-                className="w-full h-full grayscale contrast-[1.1] hover:grayscale-0 transition-all duration-1000"
+                className="w-full h-full grayscale contrast-[1.1] hover:grayscale-0 transition-all duration-1000 pointer-events-none group-hover:pointer-events-auto"
                 style={{ border: 0 }}
                 allowFullScreen={true}
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
               ></iframe>
               
-              <div className="absolute bottom-6 left-6 bg-white/90 backdrop-blur-md px-6 py-3 rounded-2xl shadow-xl">
+              <div className="absolute bottom-6 left-6 bg-white/90 backdrop-blur-md px-6 py-3 rounded-2xl shadow-xl pointer-events-none">
                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-900 flex items-center gap-2">
                   <MapPin className="w-3 h-3 text-[#b32d3a]" /> Richmond, London
                 </p>
