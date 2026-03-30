@@ -3,7 +3,7 @@
 import { Plus, Star, Loader2, Zap, Leaf, Crown, Flame } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useState, useEffect, useRef } from 'react';
-import DeliveryScheduler from './DeliveryScheduler'; // Assuming it's in the same folder
+import DeliveryScheduler from './DeliveryScheduler';
 
 const CATEGORIES = [
   { label: 'All', value: 'All' },
@@ -22,7 +22,6 @@ export default function SignatureCollections() {
   const [dishes, setDishes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Reference for the scheduler to allow smooth scrolling if slot is missing
   const schedulerRef = useRef<HTMLDivElement>(null);
 
   const renderBadge = (dish: any) => {
@@ -90,12 +89,12 @@ export default function SignatureCollections() {
     e.preventDefault(); 
     if (!isKitchenOpen) return;
 
-    // PROFESSIONAL UX: If no slot, scroll up to the scheduler instead of just an alert
     if (!deliverySlot) {
       schedulerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
+    // Capture the click coordinates
     setFlyingItem({ x: e.clientX, y: e.clientY, img: dish.image });
     
     addToCart({
@@ -117,19 +116,24 @@ export default function SignatureCollections() {
 
   return (
     <>
-      {/* PLACEMENT: Scheduler is now part of the Signature flow. 
-         The 'sticky' class in the scheduler will now anchor to the top 
-         of the viewport as the user scrolls through the collection.
-      */}
       <div ref={schedulerRef}>
         <DeliveryScheduler />
       </div>
 
       <section className="py-24 px-6 md:px-12 bg-white relative overflow-hidden">
         <style jsx global>{`
-          @keyframes flyToCart {
-            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-            100% { left: 90vw; top: 20px; transform: translate(-50%, -50%) scale(0.1); opacity: 0; }
+          @keyframes flyToStickyBasket {
+            0% { 
+              transform: translate(-50%, -50%) scale(1); 
+              opacity: 1; 
+            }
+            100% { 
+              /* Targeting the Bottom Right Sticky Basket position */
+              left: 92vw; 
+              top: 92vh; 
+              transform: translate(-50%, -50%) scale(0.1); 
+              opacity: 0; 
+            }
           }
           .no-scrollbar::-webkit-scrollbar { display: none; }
         `}</style>
@@ -140,7 +144,7 @@ export default function SignatureCollections() {
             style={{
               left: flyingItem.x,
               top: flyingItem.y,
-              animation: 'flyToCart 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards'
+              animation: 'flyToStickyBasket 0.9s cubic-bezier(0.4, 0, 0.2, 1) forwards'
             }}
           >
             <img src={flyingItem.img} className="w-full h-full object-cover" alt="" />
@@ -174,47 +178,41 @@ export default function SignatureCollections() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-20">
-            {filteredDishes.length > 0 ? (
-              filteredDishes.map((dish) => {
-                const isSoldOut = !dish.isAvailable;
-                return (
-                  <div key={dish._id} className={`group ${(!isKitchenOpen || isSoldOut) ? 'grayscale opacity-60' : ''}`}>
-                    <div className="relative aspect-[4/5] rounded-[2.5rem] overflow-hidden mb-6 shadow-xl bg-stone-100 border border-slate-100">
-                      {!isSoldOut && isKitchenOpen && renderBadge(dish)}
-                      <img 
-                        src={dish.image} 
-                        alt={dish.name} 
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" 
-                      />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-6 z-30">
-                         <button 
-                          disabled={isSoldOut || !isKitchenOpen}
-                          onClick={(e) => handleAddToCart(e, dish)}
-                          className="bg-white text-slate-900 w-full py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-2 hover:bg-[#b32d3a] hover:text-white transition-colors shadow-2xl"
-                         >
-                            <Plus size={16} />
-                            {!isKitchenOpen ? "Kitchen Closed" : isSoldOut ? "Sold Out" : "Add to Order"}
-                         </button>
-                      </div>
-                    </div>
-                    <div className="px-2">
-                      <div className="flex justify-between items-start gap-4 mb-2">
-                        <h3 className="font-black text-xl text-slate-900 tracking-tight leading-tight uppercase">{dish.name}</h3>
-                        <span className="font-black text-[#b32d3a] text-lg">£{Number(dish.price).toFixed(2)}</span>
-                      </div>
-                      <p className="text-slate-400 text-xs font-medium line-clamp-2 italic mb-3">{dish.description}</p>
-                      <div className="flex items-center gap-0.5">
-                        {[...Array(5)].map((_, i) => <Star key={i} size={10} className="fill-[#b32d3a] text-[#b32d3a]" />)}
-                      </div>
+            {filteredDishes.map((dish) => {
+              const isSoldOut = !dish.isAvailable;
+              return (
+                <div key={dish._id} className={`group ${(!isKitchenOpen || isSoldOut) ? 'grayscale opacity-60' : ''}`}>
+                  <div className="relative aspect-[4/5] rounded-[2.5rem] overflow-hidden mb-6 shadow-xl bg-stone-100 border border-slate-100">
+                    {!isSoldOut && isKitchenOpen && renderBadge(dish)}
+                    <img 
+                      src={dish.image} 
+                      alt={dish.name} 
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" 
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-6 z-30">
+                       <button 
+                        disabled={isSoldOut || !isKitchenOpen}
+                        onClick={(e) => handleAddToCart(e, dish)}
+                        className="bg-white text-slate-900 w-full py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-2 hover:bg-[#b32d3a] hover:text-white transition-colors shadow-2xl"
+                       >
+                          <Plus size={16} />
+                          {!isKitchenOpen ? "Kitchen Closed" : isSoldOut ? "Sold Out" : "Add to Order"}
+                       </button>
                     </div>
                   </div>
-                );
-              })
-            ) : (
-              <div className="col-span-full py-32 text-center bg-stone-50 rounded-[3rem] border-2 border-dashed border-stone-200">
-                <p className="text-slate-400 font-black uppercase text-[10px] tracking-[0.3em]">Selection Pending</p>
-              </div>
-            )}
+                  <div className="px-2">
+                    <div className="flex justify-between items-start gap-4 mb-2">
+                      <h3 className="font-black text-xl text-slate-900 tracking-tight leading-tight uppercase">{dish.name}</h3>
+                      <span className="font-black text-[#b32d3a] text-lg">£{Number(dish.price).toFixed(2)}</span>
+                    </div>
+                    <p className="text-slate-400 text-xs font-medium line-clamp-2 italic mb-3">{dish.description}</p>
+                    <div className="flex items-center gap-0.5">
+                      {[...Array(5)].map((_, i) => <Star key={i} size={10} className="fill-[#b32d3a] text-[#b32d3a]" />)}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
