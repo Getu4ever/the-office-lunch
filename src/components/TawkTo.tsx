@@ -27,9 +27,8 @@ export default function TawkTo() {
     })();
 
     window.Tawk_API.onLoad = function() {
-      // Keep it as a small bubble/bar on the left
+      // Ensures it stays as a small, quiet bar on the far bottom left
       window.Tawk_API.collapse();
-      // Block the automatic "How can I help?" popups
       window.Tawk_API.hideGreeting();
     };
   }, []);
